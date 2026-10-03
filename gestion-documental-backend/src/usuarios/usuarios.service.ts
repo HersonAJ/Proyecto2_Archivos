@@ -1,42 +1,66 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { UsuariosRepository } from './repository/usuarios.repository';
+import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
 
 @Injectable()
 export class UsuariosService {
-  create(createUsuarioDto: CreateUsuarioDto) {
-    return {
-      mensaje: 'Usuario creado correctamente',
-      usuario: createUsuarioDto,
-    };
+  constructor(private readonly usuariosRepository: UsuariosRepository) {}
+
+  async create(dto: CreateUsuarioDto) {
+    const password = await bcrypt.hash(dto.password, 10);
+    try {
+      return await this.usuariosRepository.crear({ ...dto, password });
+    } catch (error) {
+      this.lanzarSiCorreoRepetido(error);
+      throw error;
+    }
   }
 
   findAll() {
-    return {
-      mensaje: 'Usuarios obtenidos correctamente',
-      usuarios: [],
-    };
+    return this.usuariosRepository.listar();
   }
 
-  findOne(id: number) {
-    return {
-      mensaje: 'Usuario obtenido correctamente',
-      id,
-    };
+  async findOne(id: string) {
+    const usuario = await this.usuariosRepository.buscarPorId(id);
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    return usuario;
   }
 
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return {
-      mensaje: 'Usuario actualizado correctamente',
-      id,
-      usuario: updateUsuarioDto,
-    };
+  async update(id: string, dto: UpdateUsuarioDto) {
+    const cambios = { ...dto };
+    if (dto.password) {
+      cambios.password = await bcrypt.hash(dto.password, 10);
+    }
+    try {
+      const usuario = await this.usuariosRepository.actualizar(id, cambios);
+      if (!usuario) throw new NotFoundException('Usuario no encontrado');
+      return usuario;
+    } catch (error) {
+      this.lanzarSiCorreoRepetido(error);
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return {
-      mensaje: 'Usuario eliminado correctamente',
-      id,
-    };
+  desactivar(id: string) {
+    return this.cambiarEstado(id, false);
+  }
+
+  activar(id: string) {
+    return this.cambiarEstado(id, true);
+  }
+
+  private async cambiarEstado(id: string, activo: boolean) {
+    const usuario = await this.usuariosRepository.actualizar(id, { activo });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    return usuario;
+  }
+
+  private lanzarSiCorreoRepetido(error: unknown) {
+    if (esClaveDuplicada(error)) {
+      throw new ConflictException('Ya existe un usuario con ese correo');
+    }
   }
 }
