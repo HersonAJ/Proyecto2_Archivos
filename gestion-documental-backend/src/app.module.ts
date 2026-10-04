@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { AutenticacionModule } from './autenticacion/autenticacion.module';
+import { ActividadesModule } from './acciones/actividades.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { AutenticacionModule } from './autenticacion/autenticacion.module';
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
-    UsuariosModule, AutenticacionModule
+    UsuariosModule, AutenticacionModule, ActividadesModule
   ],
   controllers: [AppController],
   providers: [AppService],
