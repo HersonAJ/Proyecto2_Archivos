@@ -7,7 +7,7 @@ import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
 
 @Injectable()
 export class UsuariosService {
-  constructor(private readonly usuariosRepository: UsuariosRepository) {}
+  constructor(private readonly usuariosRepository: UsuariosRepository) { }
 
   async create(dto: CreateUsuarioDto) {
     const password = await bcrypt.hash(dto.password, 10);
@@ -66,5 +66,10 @@ export class UsuariosService {
 
   buscarParaLogin(correo: string) {
     return this.usuariosRepository.buscarPorCorreoConPassword(correo);
+  }
+
+  async buscarActivoPorId(id: string) {
+    const usuario = await this.usuariosRepository.buscarPorId(id);
+    return usuario?.activo ? usuario : null;
   }
 }

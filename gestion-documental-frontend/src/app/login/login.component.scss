@@ -1,0 +1,25 @@
+.contenedor {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tarjeta {
+  width: 100%;
+  max-width: 380px;
+  padding: 8px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-content {
+  padding-top: 16px;
+}
+
+.error {
+  color: var(--mat-sys-error);
+  margin: 0;
+}

@@ -1,0 +1,38 @@
+<div class="contenedor">
+  <mat-card class="tarjeta">
+    <mat-card-header>
+      <mat-card-title>Gestión Documental</mat-card-title>
+      <mat-card-subtitle>Inicia sesión para continuar</mat-card-subtitle>
+    </mat-card-header>
+
+    <form [formGroup]="formulario" (ngSubmit)="ingresar()">
+      <mat-card-content>
+        <mat-form-field appearance="outline">
+          <mat-label>Correo</mat-label>
+          <input matInput type="email" formControlName="correo" autocomplete="username" />
+          @if (formulario.controls.correo.hasError('required')) {
+            <mat-error>El correo es obligatorio</mat-error>
+          } @else if (formulario.controls.correo.hasError('email')) {
+            <mat-error>El correo no es válido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contraseña</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          @if (formulario.controls.password.hasError('required')) {
+            <mat-error>La contraseña es obligatoria</mat-error>
+          }
+        </mat-form-field>
+
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
+        }
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-flat-button type="submit" [disabled]="enviando()">Entrar</button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</div>

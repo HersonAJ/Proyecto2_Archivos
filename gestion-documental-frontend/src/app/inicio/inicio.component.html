@@ -1,0 +1,20 @@
+<mat-toolbar>
+  <span>Gestión Documental</span>
+  <span class="espaciador"></span>
+  <span>{{ autenticacion.usuario()?.nombre }} ({{ autenticacion.usuario()?.rol }})</span>
+  <button mat-button (click)="autenticacion.cerrarSesion()">Salir</button>
+</mat-toolbar>
+
+<mat-card class="tarjeta">
+  <mat-card-header>
+    <mat-card-title>Respuesta de /usuarios/perfil</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (perfil(); as p) {
+      <p>Correo: {{ p.correo }}</p>
+      <p>Almacenamiento usado: {{ p.almacenamientoUsado }} bytes</p>
+    } @else {
+      <p>Cargando…</p>
+    }
+  </mat-card-content>
+</mat-card>
