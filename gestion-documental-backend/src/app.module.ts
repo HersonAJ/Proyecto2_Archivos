@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { AutenticacionModule } from './autenticacion/autenticacion.module';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
-    UsuariosModule,
+    UsuariosModule, AutenticacionModule
   ],
   controllers: [AppController],
   providers: [AppService],

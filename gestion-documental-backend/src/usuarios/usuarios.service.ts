@@ -63,4 +63,8 @@ export class UsuariosService {
       throw new ConflictException('Ya existe un usuario con ese correo');
     }
   }
+
+  buscarParaLogin(correo: string) {
+    return this.usuariosRepository.buscarPorCorreoConPassword(correo);
+  }
 }
