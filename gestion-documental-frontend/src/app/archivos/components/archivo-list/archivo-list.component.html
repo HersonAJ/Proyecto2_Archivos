@@ -1,0 +1,64 @@
+<mat-toolbar>
+  <a mat-icon-button routerLink="/inicio" aria-label="Volver al inicio">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <span>Mis archivos</span>
+  <span class="espaciador"></span>
+  
+  <button mat-flat-button color="primary" (click)="subirArchivo()">
+    <mat-icon>upload_file</mat-icon>
+    Subir archivo
+  </button>
+</mat-toolbar>
+
+<main class="contenido">
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando() && archivos().length === 0) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando archivos…</p>
+    </div>
+  } @else if (archivos().length === 0) {
+    <p class="aviso">No hay archivos en esta ubicación.</p>
+  } @else {
+    <mat-list>
+      @for (archivo of archivos(); track archivo.id) {
+        <mat-list-item>
+          <mat-icon matListItemIcon [class.md-file]="archivo.tipo === 'MD'">
+            {{ obtenerIconoTipo(archivo.tipo) }}
+          </mat-icon>
+          
+          <div matListItemTitle class="nombre-archivo">{{ archivo.nombre }}</div>
+          <div matListItemLine class="meta-archivo">
+            {{ formatearTamano(archivo.tamano) }} • {{ archivo.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            @if (archivo.etiquetas && archivo.etiquetas.length > 0) {
+              <span class="etiquetas"> • {{ archivo.etiquetas.join(', ') }}</span>
+            }
+          </div>
+
+          <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones del archivo">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="descargarArchivo(archivo)">
+              <mat-icon>download</mat-icon>
+              <span>Descargar</span>
+            </button>
+          </mat-menu>
+        </mat-list-item>
+      }
+    </mat-list>
+
+    <div class="paginador-container">
+      <mat-paginator 
+        [length]="total()" 
+        [pageSize]="limite()" 
+        [pageSizeOptions]="[10, 20, 50]"
+        showFirstLastButtons 
+        aria-label="Seleccionar página de archivos">
+      </mat-paginator>
+    </div>
+  }
+</main>

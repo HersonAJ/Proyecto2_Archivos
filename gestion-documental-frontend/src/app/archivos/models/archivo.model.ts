@@ -1,0 +1,65 @@
+export enum TipoArchivo {
+  TXT = 'TXT',
+  MD = 'MD'
+}
+
+export enum OrdenArchivo {
+  NOMBRE = 'nombre',
+  CREADO = 'creado',
+  TAMANO = 'tamano'
+}
+
+export enum SentidoOrden {
+  ASC = 'asc',
+  DESC = 'desc'
+}
+
+export interface Archivo {
+  id: string;
+  nombre: string;
+  tipo: TipoArchivo;
+  tamano: number;
+  propietario: string;
+  carpeta: string | null;
+  contenidoId: string;
+  etiquetas: string[];
+  enPapelera: boolean;
+  fechaEliminacion: string | null;
+  eliminadoPorCascada: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListarArchivosResponse {
+  datos: Archivo[];
+  total: number;
+  pagina: number;
+  limite: number;
+}
+
+export interface ListarArchivosParams {
+  carpeta?: string | null;
+  q?: string;
+  tipo?: TipoArchivo;
+  etiqueta?: string;
+  desde?: string;
+  hasta?: string;
+  orden?: OrdenArchivo;
+  sentido?: SentidoOrden;
+  pagina?: number;
+  limite?: number;
+}
+
+export interface ActualizarArchivoDto {
+  nombre?: string;
+  etiquetas?: string[];
+}
+
+export interface MoverArchivoDto {
+  carpeta: string | null;
+}
+
+export interface SubirArchivoParams {
+  carpeta?: string;
+  etiquetas?: string;
+}

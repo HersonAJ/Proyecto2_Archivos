@@ -7,6 +7,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { AutenticacionModule } from './autenticacion/autenticacion.module';
 import { ActividadesModule } from './acciones/actividades.module';
 import { CarpetasModule } from './carpetas/carpetas.module';
+import { ArchivosModule } from './archivos/archivos.module';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { CarpetasModule } from './carpetas/carpetas.module';
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
-    UsuariosModule, AutenticacionModule, ActividadesModule, CarpetasModule
+    UsuariosModule, AutenticacionModule, ActividadesModule, CarpetasModule, ArchivosModule
   ],
   controllers: [AppController],
   providers: [AppService],

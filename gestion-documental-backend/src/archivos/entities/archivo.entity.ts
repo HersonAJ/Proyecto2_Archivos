@@ -42,8 +42,8 @@ export class Archivo {
     @Prop({ default: false })
     eliminadoPorCascada: boolean;
 
-    createAt: Date;
-    updateAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export const ArchivoSchema = SchemaFactory.createForClass(Archivo);
