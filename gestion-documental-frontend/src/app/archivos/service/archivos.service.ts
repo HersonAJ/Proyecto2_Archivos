@@ -10,16 +10,14 @@ export class ArchivosService extends ApiService {
     listar(params: ListarArchivosParams) {
         let httpParams = new HttpParams();
 
-        Object.keys(params).forEach(key => {
-            const value = (params as any)[key];
-            if (value !== undefined && value !== null && value !== '') {
-                if (key === 'desde' || key === 'hasta') {
-                    httpParams = httpParams.append(key, new Date(value).toISOString());
-                } else {
-                    httpParams = httpParams.append(key, value.toString());
-                }
-            }
-        });
+        for (const [clave, valor] of Object.entries(params)) {
+            if (valor === undefined || valor === null || valor === '') continue;
+            const esFecha = clave === 'desde' || clave === 'hasta';
+            httpParams = httpParams.set(
+                clave,
+                esFecha ? new Date(valor as string).toISOString() : String(valor),
+            );
+        }
         return this.http.get<ListarArchivosResponse>(`${this.baseUrl}/archivos`, { params: httpParams });
     }
 
@@ -37,16 +35,13 @@ export class ArchivosService extends ApiService {
         }).pipe(
             map((response: HttpResponse<Blob>) => {
                 const blob = response.body as Blob;
-                let nombreArchivo = 'archivo_descargado';
+                let nombreArchivo: string | null = null;
 
                 const contentDisposition = response.headers.get('content-disposition');
-                if (contentDisposition) {
-                    const match = contentDisposition.match(/filename\*=UTF-8''(.+)/);
-                    if (match && match[1]) {
-                        nombreArchivo = decodeURIComponent(match[1]);
-                    }
+                const match = contentDisposition?.match(/filename\*=UTF-8''(.+)/);
+                if (match?.[1]) {
+                    nombreArchivo = decodeURIComponent(match[1]);
                 }
-
                 return { blob, nombreArchivo };
             })
         );

@@ -4,8 +4,8 @@
   </a>
   <span>Mis archivos</span>
   <span class="espaciador"></span>
-  
-  <button mat-flat-button color="primary" (click)="subirArchivo()">
+
+  <button mat-flat-button (click)="subirArchivo()">
     <mat-icon>upload_file</mat-icon>
     Subir archivo
   </button>
@@ -23,16 +23,16 @@
     <p class="aviso">No hay archivos en esta ubicación.</p>
   } @else {
     <mat-list>
-      @for (archivo of archivos(); track archivo.id) {
+      @for (archivo of archivos(); track archivo._id) {
         <mat-list-item>
-          <mat-icon matListItemIcon [class.md-file]="archivo.tipo === 'MD'">
+          <mat-icon matListItemIcon [class.md-file]="esMarkdown(archivo)">
             {{ obtenerIconoTipo(archivo.tipo) }}
           </mat-icon>
-          
+
           <div matListItemTitle class="nombre-archivo">{{ archivo.nombre }}</div>
           <div matListItemLine class="meta-archivo">
-            {{ formatearTamano(archivo.tamano) }} • {{ archivo.createdAt | date:'dd/MM/yyyy HH:mm' }}
-            @if (archivo.etiquetas && archivo.etiquetas.length > 0) {
+            {{ archivo.tamano | tamano }} • {{ archivo.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            @if (archivo.etiquetas.length > 0) {
               <span class="etiquetas"> • {{ archivo.etiquetas.join(', ') }}</span>
             }
           </div>
@@ -40,7 +40,7 @@
           <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones del archivo">
             <mat-icon>more_vert</mat-icon>
           </button>
-          
+
           <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="descargarArchivo(archivo)">
               <mat-icon>download</mat-icon>
@@ -52,11 +52,13 @@
     </mat-list>
 
     <div class="paginador-container">
-      <mat-paginator 
-        [length]="total()" 
-        [pageSize]="limite()" 
+      <mat-paginator
+        [length]="total()"
+        [pageSize]="limite()"
+        [pageIndex]="pagina() - 1"
         [pageSizeOptions]="[10, 20, 50]"
-        showFirstLastButtons 
+        (page)="cambiarPagina($event)"
+        showFirstLastButtons
         aria-label="Seleccionar página de archivos">
       </mat-paginator>
     </div>

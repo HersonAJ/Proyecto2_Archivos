@@ -1,0 +1,83 @@
+.campo-completo {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.file-drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  position: relative;
+
+  &:hover {
+    background-color: #f5f5f5;
+    border-color: #1976d2;
+    color: #1976d2;
+  }
+
+  .mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .file-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .file-name {
+      font-weight: 500;
+      color: #333;
+      word-break: break-all;
+      max-width: 100%;
+    }
+    .file-size {
+      font-size: 0.85rem;
+      color: #666;
+    }
+  }
+
+  .btn-limpiar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+}
+
+.error {
+  color: #f44336;
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.file-drop-area.arrastrando {
+  border-color: var(--mat-sys-primary);
+  background: var(--mat-sys-primary-container);
+}
+
+.spin {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}

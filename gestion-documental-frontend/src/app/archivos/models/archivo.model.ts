@@ -1,6 +1,6 @@
 export enum TipoArchivo {
-  TXT = 'TXT',
-  MD = 'MD'
+  TXT = 'txt',
+  MD = 'md'
 }
 
 export enum OrdenArchivo {
@@ -15,7 +15,7 @@ export enum SentidoOrden {
 }
 
 export interface Archivo {
-  id: string;
+  _id: string;
   nombre: string;
   tipo: TipoArchivo;
   tamano: number;
