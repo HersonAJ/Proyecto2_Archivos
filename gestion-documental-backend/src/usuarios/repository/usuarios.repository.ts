@@ -30,4 +30,10 @@ export class UsuariosRepository {
       .findByIdAndUpdate(id, datos, { returnDocument: 'after', runValidators: true })
       .exec();
   }
+
+  ajustarAlmacenamiento(id: string, delta: number) {
+    return this.modelo
+      .findByIdAndUpdate(id, { $inc: { almacenamientoUsado: delta } })
+      .exec();
+  }
 }

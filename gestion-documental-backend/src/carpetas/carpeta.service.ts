@@ -158,4 +158,8 @@ export class CarpetaService {
             'Ya existe una carpeta con ese nombre en esta ubicacion',
         );
     }
+
+    buscarActivaDelUsuario(id: string, propietario: string) {
+        return this.obtenerActiva(id, propietario);
+    }
 }

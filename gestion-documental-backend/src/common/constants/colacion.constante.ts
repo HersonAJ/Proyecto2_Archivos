@@ -1,0 +1,1 @@
+export const COLACION_ES = { locale: 'es', strength: 2 };

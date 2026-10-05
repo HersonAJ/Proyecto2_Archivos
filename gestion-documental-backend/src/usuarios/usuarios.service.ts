@@ -72,4 +72,8 @@ export class UsuariosService {
     const usuario = await this.usuariosRepository.buscarPorId(id);
     return usuario?.activo ? usuario : null;
   }
+
+  ajustarAlmacenamiento(id: string, delta: number) {
+    return this.usuariosRepository.ajustarAlmacenamiento(id, delta);
+  }
 }
