@@ -1,0 +1,47 @@
+.espaciador {
+  flex: 1 1 auto;
+}
+
+.contenido {
+  max-width: 720px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.migas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 16px;
+
+  a {
+    color: var(--mat-sys-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  mat-icon {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .actual {
+    font-weight: 500;
+  }
+}
+
+.enlace {
+  color: inherit;
+  text-decoration: none;
+}
+
+.aviso {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  color: var(--mat-sys-error);
+}

@@ -2,6 +2,7 @@
   <span>Gestión Documental</span>
   <span class="espaciador"></span>
   <span>{{ autenticacion.usuario()?.nombre }} ({{ autenticacion.usuario()?.rol }})</span>
+  <a mat-button routerLink="/carpetas">Mis carpetas</a>
   <button mat-button (click)="autenticacion.cerrarSesion()">Salir</button>
 </mat-toolbar>
 

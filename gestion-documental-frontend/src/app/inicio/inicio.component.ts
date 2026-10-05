@@ -5,10 +5,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../auntenticacion/services/auth.service';
 import { Usuario } from '../usuarios/services/models/usuario.model';
 import { UsuariosService } from '../usuarios/services/usuarios.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-inicio',
-  imports: [MatToolbarModule, MatButtonModule, MatCardModule],
+  imports: [MatToolbarModule, MatButtonModule, MatCardModule, RouterLink],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -27,7 +27,7 @@ export class UsuariosRepository {
 
   actualizar(id: string, datos: Partial<Usuario>) {
     return this.modelo
-      .findByIdAndUpdate(id, datos, { new: true, runValidators: true })
+      .findByIdAndUpdate(id, datos, { returnDocument: 'after', runValidators: true })
       .exec();
   }
 }

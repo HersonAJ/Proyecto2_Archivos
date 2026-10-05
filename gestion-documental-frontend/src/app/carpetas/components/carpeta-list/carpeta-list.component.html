@@ -1,0 +1,59 @@
+<mat-toolbar>
+  <a mat-icon-button routerLink="/inicio" aria-label="Volver al inicio">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <span>Mis carpetas</span>
+  <span class="espaciador"></span>
+  <button mat-flat-button (click)="nuevaCarpeta()">
+    <mat-icon>create_new_folder</mat-icon>
+    Nueva carpeta
+  </button>
+</mat-toolbar>
+
+<main class="contenido">
+  <nav class="migas" aria-label="Ruta de la carpeta">
+    <a routerLink="/carpetas">Mis carpetas</a>
+    @for (paso of ruta(); track paso._id) {
+      <mat-icon>chevron_right</mat-icon>
+      <a [routerLink]="['/carpetas', paso._id]">{{ paso.nombre }}</a>
+    }
+    @if (actual(); as carpeta) {
+      <mat-icon>chevron_right</mat-icon>
+      <span class="actual">{{ carpeta.nombre }}</span>
+    }
+  </nav>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <p class="aviso">Cargando…</p>
+  } @else if (carpetas().length === 0) {
+    @if (actual()) {
+      <p class="aviso">Esta carpeta no tiene subcarpetas.</p>
+    } @else {
+      <p class="aviso">Aún no tienes carpetas. Crea la primera con "Nueva carpeta".</p>
+    }
+  } @else {
+    <mat-list>
+      @for (c of carpetas(); track c._id) {
+        <mat-list-item>
+          <mat-icon matListItemIcon>folder</mat-icon>
+          <a matListItemTitle class="enlace" [routerLink]="['/carpetas', c._id]">{{ c.nombre }}</a>
+          <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones de la carpeta">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="renombrar(c)">
+              <mat-icon>edit</mat-icon>
+              <span>Renombrar</span>
+            </button>
+            <button mat-menu-item (click)="mover(c)">
+              <mat-icon>drive_file_move</mat-icon>
+              <span>Mover</span>
+            </button>
+          </mat-menu>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+</main>

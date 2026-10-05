@@ -57,7 +57,7 @@ export class CarpetasRepository {
 
   renombrar(id: string, nombre: string) {
     return this.modelo
-      .findByIdAndUpdate(id, { nombre }, { new: true, runValidators: true })
+      .findByIdAndUpdate(id, { nombre }, { returnDocument: 'after', runValidators: true })
       .exec();
   }
 
@@ -110,7 +110,7 @@ export class CarpetasRepository {
           },
         },
       ],
-      { timestamps: false },
+      { timestamps: false, updatePipeline: true},
     );
   }
 }

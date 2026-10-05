@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ datos.titulo }}</h2>
+
+<form [formGroup]="formulario" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" maxlength="100" autocomplete="off" cdkFocusInitial />
+      @if (formulario.controls.nombre.invalid) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      }
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="enviando()">{{ datos.boton }}</button>
+  </mat-dialog-actions>
+</form>
