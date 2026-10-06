@@ -1,15 +1,26 @@
-.espaciador {
-  flex: 1 1 auto;
-}
-
-.boton-subir {
-  margin-left: 8px;
-}
-
 .contenido {
-  max-width: 880px;
-  margin: 24px auto;
-  padding: 0 16px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.titulo-pagina {
+  font: var(--mat-sys-headline-small);
+  margin: 0;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
 }
 
 .migas {

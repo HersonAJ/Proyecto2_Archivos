@@ -28,7 +28,6 @@ export interface DatosCarpetaForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarpetaFormComponent {
-  // Datos que nos entrega quien abre el diálogo
   protected readonly datos = inject<DatosCarpetaForm>(MAT_DIALOG_DATA);
   private readonly dialogRef =
     inject<MatDialogRef<CarpetaFormComponent, boolean>>(MatDialogRef);

@@ -1,18 +1,16 @@
-<mat-toolbar>
-  <a mat-icon-button routerLink="/inicio" aria-label="Volver al inicio">
-    <mat-icon>arrow_back</mat-icon>
-  </a>
-  <span>Mis documentos</span>
-  <span class="espaciador"></span>
-  <button mat-stroked-button (click)="nuevaCarpeta()" [disabled]="error() !== null">
-    <mat-icon>create_new_folder</mat-icon>
-    Nueva carpeta
-  </button>
-  <button mat-flat-button class="boton-subir" (click)="subirArchivo()" [disabled]="error() !== null">
-    <mat-icon>upload_file</mat-icon>
-    Subir archivo
-  </button>
-</mat-toolbar>
+<header class="cabecera">
+  <h1 class="titulo-pagina">Mis documentos</h1>
+  <div class="acciones">
+    <button mat-stroked-button (click)="nuevaCarpeta()" [disabled]="error() !== null">
+      <mat-icon>create_new_folder</mat-icon>
+      Nueva carpeta
+    </button>
+    <button mat-flat-button (click)="subirArchivo()" [disabled]="error() !== null">
+      <mat-icon>upload_file</mat-icon>
+      Subir archivo
+    </button>
+  </div>
+</header>
 
 <main class="contenido">
   <nav class="migas" aria-label="Ruta de la carpeta">

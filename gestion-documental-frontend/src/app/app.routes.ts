@@ -1,20 +1,26 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './login/login.component';
-import { InicioComponent } from './inicio/inicio.component';
 import { CarpetaListComponent } from './carpetas/components/carpeta-list/carpeta-list.component';
-import { ArchivoListComponent } from './archivos/components/archivo-list/archivo-list.component';
+import { ShellComponent } from './interfaz/components/sidebar/sidebar.component';
+import { authGuard } from './core/guards/auth.guard';
+import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'inicio', component: InicioComponent, canActivate: [authGuard] },
-  { path: 'carpetas', component: CarpetaListComponent, canActivate: [authGuard] },
-  { path: 'carpetas/:id', component: CarpetaListComponent, canActivate: [authGuard] },
 
-  { path: 'archivos', component: ArchivoListComponent, canActivate: [authGuard] },
-  { path: 'archivos/carpeta/:id', component: ArchivoListComponent, canActivate: [authGuard] },
+  {
+    // El guard se aplica una vez al shell y protege todas sus rutas hijas
+    path: '',
+    component: ShellComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: 'carpetas', component: CarpetaListComponent },
+      { path: 'carpetas/:id', component: CarpetaListComponent },
 
+      { path: '', redirectTo: 'carpetas', pathMatch: 'full' },
+    ],
+  },
 
-  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
-  { path: '**', redirectTo: 'inicio' },
+  { path: 'inicio', redirectTo: 'carpetas' },
+  { path: '**', redirectTo: 'carpetas' },
 ];

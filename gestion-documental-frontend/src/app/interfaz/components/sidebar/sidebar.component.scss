@@ -1,0 +1,129 @@
+.contenedor {
+  height: 100vh;
+  background: var(--mat-sys-surface);
+}
+
+.menu-lateral {
+  width: 264px;
+  background: var(--mat-sys-surface-container);
+  border-right: 1px solid var(--mat-sys-outline-variant);
+}
+
+.menu-interior {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 12px;
+}
+
+.marca-icono {
+  color: var(--mat-sys-primary);
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.marca-nombre {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.navegacion {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  flex: 1;
+}
+
+// El elemento activo se marca con una barra de color a la izquierda
+.enlace-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid transparent;
+  border-radius: 4px 12px 12px 4px;
+  color: var(--mat-sys-on-surface-variant);
+  text-decoration: none;
+  font: var(--mat-sys-label-large);
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &.activo {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+    border-left-color: var(--mat-sys-primary);
+  }
+}
+
+.almacenamiento {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.almacenamiento-texto {
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.almacenamiento-etiqueta {
+  font: var(--mat-sys-label-small);
+}
+
+.barra {
+  background: var(--mat-sys-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.espaciador {
+  flex: 1 1 auto;
+}
+
+.boton-usuario {
+  height: 48px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+  font-weight: 700;
+}
+
+.datos-usuario {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+
+  .rol {
+    font: var(--mat-sys-label-small);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
