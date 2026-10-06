@@ -17,6 +17,7 @@ import { TamanoPipe } from '../../../shared/pipes/tamano.pipe';
 import { Archivo, TipoArchivo, OrdenArchivo, SentidoOrden } from '../../models/archivo.model';
 import { ArchivosService } from '../../service/archivos.service';
 import { ArchivoFormComponent, DatosArchivoForm } from '../archivo-form/archivo-form.component';
+import { UsuariosService } from '../../../usuarios/services/usuarios.service';
 
 @Component({
   selector: 'app-archivo-list',
@@ -37,29 +38,20 @@ export class ArchivoListComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly archivosService = inject(ArchivosService);
   private readonly dialog = inject(MatDialog);
-
-  // Carpeta cuyos archivos se muestran (null = raíz). La entrega el componente padre.
-  // input() es una señal de solo lectura que se actualiza cuando el padre cambia el valor.
+  private readonly usuariosService = inject(UsuariosService);
   readonly carpetaId = input<string | null>(null);
-
   protected readonly archivos = signal<Archivo[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly total = signal(0);
-
   protected readonly pagina = signal(1);
   protected readonly limite = signal(20);
-
-  // Cada vez que se emite un valor aquí, se vuelve a cargar la lista
   private readonly recarga = new BehaviorSubject<void>(undefined);
 
   constructor() {
-    // toObservable convierte la señal en un flujo: emite cada vez que cambia la carpeta
     toObservable(this.carpetaId)
       .pipe(
-        // Al cambiar de carpeta se vuelve a la primera página
         tap(() => this.pagina.set(1)),
-        // Cada vez que "recarga" emite, se pide de nuevo la lista de ESTA carpeta
         switchMap((id) => this.recarga.pipe(map(() => id))),
         tap(() => {
           this.cargando.set(true);
@@ -75,7 +67,6 @@ export class ArchivoListComponent {
               sentido: SentidoOrden.DESC,
             })
             .pipe(
-              // El error se atrapa aquí para que no termine la suscripción principal
               catchError((e: unknown) => {
                 this.error.set(mensajeDeError(e, 'No se pudieron cargar los archivos'));
                 return of(null);
@@ -96,7 +87,6 @@ export class ArchivoListComponent {
       });
   }
 
-  // Los siguientes dos métodos son públicos: los usa el componente padre desde su barra superior
   recargar() {
     this.recarga.next();
   }
@@ -114,6 +104,7 @@ export class ArchivoListComponent {
       .afterClosed()
       .subscribe((guardado) => {
         if (guardado) {
+          this.usuariosService.actualizarAlmacenamiento();
           this.snackBar.open('Archivo subido con éxito', 'Cerrar', { duration: 3000 });
           this.recargar();
         }
