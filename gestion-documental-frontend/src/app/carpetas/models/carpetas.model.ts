@@ -2,7 +2,7 @@ export interface Carpeta {
   _id: string;
   nombre: string;
   propietario: string;
-  carpetaPadre: string | null; // null = esta en la raíz
+  carpetaPadre: string | null; // null = esta en la raiz
   ancestros: string[];
   enPapelera: boolean;
   createdAt: string;

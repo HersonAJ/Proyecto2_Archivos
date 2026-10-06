@@ -25,7 +25,6 @@ export class CarpetaMoverComponent {
     inject<MatDialogRef<CarpetaMoverComponent, boolean>>(MatDialogRef);
   private readonly carpetasService = inject(CarpetasService);
 
-  // Ubicación que se esta viendo en el dialogo (null = raiz)
   protected readonly ubicacion = signal<string | null>(null);
   protected readonly nombreUbicacion = signal('Mis carpetas');
   private readonly padreUbicacion = signal<string | null>(null);

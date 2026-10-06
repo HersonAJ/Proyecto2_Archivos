@@ -4,7 +4,7 @@ import { Carpeta, CrearCarpeta, DetalleCarpeta } from '../models/carpetas.model'
 
 @Injectable({ providedIn: 'root' })
 export class CarpetasService extends ApiService {
-  // Sin "padre" devuelve las carpetas de la raíz
+  // Sin "padre" devuelve las carpetas de la raiz
   listar(padre?: string) {
     const params: Record<string, string> = padre ? { padre } : {};
     return this.http.get<Carpeta[]>(`${this.baseUrl}/carpetas`, { params });
@@ -22,7 +22,7 @@ export class CarpetasService extends ApiService {
     return this.http.patch<Carpeta>(`${this.baseUrl}/carpetas/${id}`, { nombre });
   }
 
-  // carpetaPadre = null mueve la carpeta a la raíz
+  // carpetaPadre = null mueve la carpeta a la raiz
   mover(id: string, carpetaPadre: string | null) {
     return this.http.patch<Carpeta>(`${this.baseUrl}/carpetas/${id}/mover`, {
       carpetaPadre,

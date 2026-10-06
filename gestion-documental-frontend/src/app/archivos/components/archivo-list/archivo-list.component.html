@@ -1,17 +1,6 @@
-<mat-toolbar>
-  <a mat-icon-button routerLink="/inicio" aria-label="Volver al inicio">
-    <mat-icon>arrow_back</mat-icon>
-  </a>
-  <span>Mis archivos</span>
-  <span class="espaciador"></span>
+<section>
+  <h2 class="titulo-seccion">Archivos</h2>
 
-  <button mat-flat-button (click)="subirArchivo()">
-    <mat-icon>upload_file</mat-icon>
-    Subir archivo
-  </button>
-</mat-toolbar>
-
-<main class="contenido">
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>
   } @else if (cargando() && archivos().length === 0) {
@@ -63,4 +52,4 @@
       </mat-paginator>
     </div>
   }
-</main>
+</section>

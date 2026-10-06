@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BehaviorSubject, catchError, combineLatest, forkJoin, of, switchMap } from 'rxjs';
+import { ArchivoListComponent } from '../../../archivos/components/archivo-list/archivo-list.component';
 import { mensajeDeError } from '../../../core/utils/mensaje-error';
 import { Carpeta, RutaCarpeta } from '../../models/carpetas.model';
 import { CarpetasService } from '../../service/carpetas.service';
@@ -24,6 +25,7 @@ import { CarpetaMoverComponent } from '../carpeta-mover/carpeta-mover.component'
     MatIconModule,
     MatListModule,
     MatMenuModule,
+    ArchivoListComponent,
   ],
   templateUrl: './carpeta-list.component.html',
   styleUrl: './carpeta-list.component.scss',
@@ -34,10 +36,12 @@ export class CarpetaListComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly carpetasService = inject(CarpetasService);
+  private readonly listaArchivos = viewChild(ArchivoListComponent);
+  protected readonly idActual = signal<string | null>(null);
 
   protected readonly carpetas = signal<Carpeta[]>([]);
   protected readonly ruta = signal<RutaCarpeta[]>([]);
-  protected readonly actual = signal<Carpeta | null>(null); // null = estamos en la raiz
+  protected readonly actual = signal<Carpeta | null>(null); // null = estamos en la raíz
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
@@ -48,6 +52,7 @@ export class CarpetaListComponent {
       .pipe(
         switchMap(([params]) => {
           const id = params.get('id');
+          this.idActual.set(id);
           this.cargando.set(true);
           this.error.set(null);
           return forkJoin({
@@ -68,6 +73,10 @@ export class CarpetaListComponent {
         this.ruta.set(resultado?.detalle?.ruta ?? []);
         this.actual.set(resultado?.detalle?.carpeta ?? null);
       });
+  }
+
+  protected subirArchivo() {
+    this.listaArchivos()?.subirArchivo();
   }
 
   protected nuevaCarpeta() {
