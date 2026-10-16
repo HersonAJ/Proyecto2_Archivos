@@ -10,7 +10,7 @@ import { CambiosArchivo, DatosNuevoArchivo, FiltroArchivos, OrdenamientoArchivos
 export class ArchivosRepository {
     constructor(
         @InjectModel(Archivo.name) private readonly modelo: Model<ArchivoDocument>,
-    ) {}
+    ) { }
 
     crear(datos: DatosNuevoArchivo) {
         return this.modelo.create(datos);
@@ -18,13 +18,13 @@ export class ArchivosRepository {
 
     //un archivo que le pertenece al usuario y no esta en la papelera
     buscarActivo(id: string, propietario: string) {
-        return this.modelo.findOne({ _id: id, propietario, enPapelera: false}).exec();
+        return this.modelo.findOne({ _id: id, propietario, enPapelera: false }).exec();
     }
 
     actualizar(id: string, cambios: CambiosArchivo) {
         return this.modelo
-        .findByIdAndUpdate(id, cambios, { returnDocument: 'after', runValidators: true })
-        .exec();
+            .findByIdAndUpdate(id, cambios, { returnDocument: 'after', runValidators: true })
+            .exec();
     }
 
     async buscar(
@@ -48,107 +48,107 @@ export class ArchivosRepository {
         if (filtro.desde) consulta.where('createdAt').gte(filtro.desde.getTime());
         if (filtro.hasta) consulta.where('createdAt').lte(filtro.hasta.getTime());
 
-        const campo = { nombre: 'nombre', creado: 'createdAt', tamano: 'tamano'}[orden.campo];
+        const campo = { nombre: 'nombre', creado: 'createdAt', tamano: 'tamano' }[orden.campo];
         const sentido = orden.sentido === 'asc' ? 1 : -1;
 
         const [datos, total] = await Promise.all([
             consulta
-            .collation(COLACION_ES)
-            .sort({[campo]: sentido, _id: 1})
-            .skip((pagina - 1) * limite)
-            .limit(limite)
-            .exec(),
+                .collation(COLACION_ES)
+                .sort({ [campo]: sentido, _id: 1 })
+                .skip((pagina - 1) * limite)
+                .limit(limite)
+                .exec(),
             this.modelo.countDocuments(consulta.getFilter()).collation(COLACION_ES),
         ]);
 
         return { datos, total };
     }
-    
+
     //metodos para la papelera
     buscarRaizEnPapelera(id: string, propietario: string) {
         return this.modelo
-        .findOne({ _id: id, propietario, enPapelera: true, eliminadoPorCascada: false})
-        .exec();
+            .findOne({ _id: id, propietario, enPapelera: true, eliminadoPorCascada: false })
+            .exec();
     }
 
     listarRaicesEnPapelera(propietario: string, limite: number) {
         return this.modelo
-        .find({ propietario, enPapelera: true, eliminadoPorCascada: false })
-        .sort({ fechaEliminacion: -1})
-        .limit(limite)
-        .exec();
+            .find({ propietario, enPapelera: true, eliminadoPorCascada: false })
+            .sort({ fechaEliminacion: -1 })
+            .limit(limite)
+            .exec();
     }
 
     enviarAPapelera(id: string, fecha: Date) {
         return this.modelo
-        .findOneAndUpdate(
-            { _id: id, enPapelera: false },
-            { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadoPorCascada: false } },
-        )
-        .exec();
+            .findOneAndUpdate(
+                { _id: id, enPapelera: false },
+                { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadoPorCascada: false } },
+            )
+            .exec();
     }
 
     async enviarAPapeleraPorCarpetas(carpetas: Types.ObjectId[], fecha: Date) {
         const resultado = await this.modelo
-        .updateMany(
-            { carpeta: { $in: carpetas}, enPapelera: false},
-            { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadoPorCascada: true } },
-        )
-        .exec();
+            .updateMany(
+                { carpeta: { $in: carpetas }, enPapelera: false },
+                { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadoPorCascada: true } },
+            )
+            .exec();
         return resultado.modifiedCount;
     }
 
     //hay un archivo activo con ese nombre en la carpeta 
     existeHermano(propietario: string, carpeta: Types.ObjectId | null, nombre: string) {
         return this.modelo
-        .exists({ propietario, carpeta, nombre, enPapelera: false})
-        .collation(COLACION_ES)
-        .exec();
+            .exists({ propietario, carpeta, nombre, enPapelera: false })
+            .collation(COLACION_ES)
+            .exec();
     }
 
-    restaurarRaiz(id: string, datos: { nombre: string; carpeta: Types.ObjectId | null}) {
+    restaurarRaiz(id: string, datos: { nombre: string; carpeta: Types.ObjectId | null }) {
         return this.modelo
-        .findOneAndUpdate(
-            { _id: id, enPapelera: true, eliminadoPorCascada: false },
-            {
-                $set: {
-                    enPapelera: false,
-                    fechaEliminacion: null,
-                    eliminadoPorCascada: false,
-                    nombre: datos.nombre,
-                    carpeta: datos.carpeta,
+            .findOneAndUpdate(
+                { _id: id, enPapelera: true, eliminadoPorCascada: false },
+                {
+                    $set: {
+                        enPapelera: false,
+                        fechaEliminacion: null,
+                        eliminadoPorCascada: false,
+                        nombre: datos.nombre,
+                        carpeta: datos.carpeta,
+                    },
                 },
-            },
-            { returnDocument: 'after', runValidators: true },
-        )
-        .exec();
+                { returnDocument: 'after', runValidators: true },
+            )
+            .exec();
     }
 
     //restaurar solo los archivos que se fueron en ese mismo lote
-    async restaurarPorCarpeta(carpetas: Types.ObjectId[], fecha: Date) {
+    async restaurarPorCarpetas(carpetas: Types.ObjectId[], fecha: Date) {
         const resultado = await this.modelo
-        .updateMany(
-            { carpeta: { $in: carpetas }, enPapelera: true, eliminadoPorCascada: true, fechaEliminacion: fecha },
-            { $set: { enPapelera: false, fechaEliminacion: null, eliminadoPorCascada: false } },
-        )
-        .exec();
+            .updateMany(
+                { carpeta: { $in: carpetas }, enPapelera: true, eliminadoPorCascada: true, fechaEliminacion: fecha },
+                { $set: { enPapelera: false, fechaEliminacion: null, eliminadoPorCascada: false } },
+            )
+            .exec();
         return resultado.modifiedCount;
     }
 
-    buscarPorCarpeta(carpetas: Types.ObjectId[], propietario: string) {
+    buscarPorCarpetas(carpetas: Types.ObjectId[], propietario: string) {
         return this.modelo
-        .find({ propietario, carpeta: { $in: carpetas } })
-        .select('contenidoId tamano')
-        .lean()
-        .exec();
+            .find({ propietario, carpeta: { $in: carpetas } })
+            .select('contenidoId tamano')
+            .lean()
+            .exec();
     }
 
     buscarTodosEnPapelera(propietario: string) {
         return this.modelo
-        .find({ propietario, enPapelera: true })
-        .select('contenidoId tamano')
-        .lean()
-        .exec();
+            .find({ propietario, enPapelera: true })
+            .select('contenidoId tamano')
+            .lean()
+            .exec();
     }
 
     async eliminarUnoEnPapelera(id: string) {

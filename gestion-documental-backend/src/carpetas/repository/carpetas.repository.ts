@@ -8,7 +8,7 @@ import { DatosNuevaCarpeta } from '../interfaces/carpetas.interface';
 export class CarpetasRepository {
   constructor(
     @InjectModel(Carpeta.name) private readonly modelo: Model<CarpetaDocument>,
-  ) {}
+  ) { }
 
   crear(datos: DatosNuevaCarpeta) {
     return this.modelo.create(datos);
@@ -110,7 +110,7 @@ export class CarpetasRepository {
           },
         },
       ],
-      { timestamps: false, updatePipeline: true},
+      { timestamps: false, updatePipeline: true },
     );
   }
 
@@ -119,90 +119,90 @@ export class CarpetasRepository {
   //una carpeta en la papelera es "raiz" de su eliminacion
   buscarRaizEnPapelera(id: string, propietario: string) {
     return this.modelo
-    .findOne({_id: id, propietario, enPapelera: true, eliminadaPorCascada: false})
-    .exec();
+      .findOne({ _id: id, propietario, enPapelera: true, eliminadaPorCascada: false })
+      .exec();
   }
 
   listarRaicesEnPapelera(propietario: string, limite: number) {
     return this.modelo
-    .find({ propietario, enPapelera: true, eliminadaPorCascada: false})
-    .sort({ fechaEliminacion: -1 })
-    .limit(limite)
-    .exec();
+      .find({ propietario, enPapelera: true, eliminadaPorCascada: false })
+      .sort({ fechaEliminacion: -1 })
+      .limit(limite)
+      .exec();
   }
 
-  async idDescendentesActivas(id: string) {
+  async idsDescendientesActivas(id: string) {
     const docs = await this.modelo
-    .find({ ancestros: id, enPapelera: false})
-    .select('_id')
-    .lean() //tipo de objetos ligeros
-    .exec();
+      .find({ ancestros: id, enPapelera: false })
+      .select('_id')
+      .lean() //tipo de objetos ligeros
+      .exec();
     return docs.map((d) => d._id);
   }
 
   //ids de todas las carpetas quecuelgan de la indicada, esten o no n la papelera
   async idsSubarbol(id: string) {
-    const docs = await this.modelo.find({ ancestros: id}).select('_id').lean().exec();
-    return docs. map((d) => d._id);
+    const docs = await this.modelo.find({ ancestros: id }).select('_id').lean().exec();
+    return docs.map((d) => d._id);
   }
 
 
   //ids de todas las carpetas del usuario que estan en la papelera
   async idsEnPapelera(propietario: string) {
     const docs = await this.modelo
-    .find({ propietario, enPapelera: true})
-    .select('_id')
-    .lean()
-    .exec();
-    return docs.map((d) => d._id); 
+      .find({ propietario, enPapelera: true })
+      .select('_id')
+      .lean()
+      .exec();
+    return docs.map((d) => d._id);
   }
 
   //envia todo el contenido de una carpeta a la papelera
   async enviarDescendientesAPapelera(id: string, fecha: Date) {
-    const resultado  = await this.modelo
-    .updateMany({ ancestros: id, enPapelera: false},
-      { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadaPorCascada: true} },
-    )
-    .exec();
-     return resultado.modifiedCount;
+    const resultado = await this.modelo
+      .updateMany({ ancestros: id, enPapelera: false },
+        { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadaPorCascada: true } },
+      )
+      .exec();
+    return resultado.modifiedCount;
   }
 
-  enviarAPapelera(id: string , fecha: Date) {
+  enviarAPapelera(id: string, fecha: Date) {
     return this.modelo
-    .findOneAndUpdate(
-      {_id: id, enPapelera: false },
-      {$set: { enPapelera: true, fechaEliminacion: fecha, eliminadaPorCascada: false}},
-    )
-    .exec();
+      .findOneAndUpdate(
+        { _id: id, enPapelera: false },
+        { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadaPorCascada: false } },
+      )
+      .exec();
   }
 
   //restaura solo las subcarpetas que se fueron en ese mismo lote
   async restaurarDescendientes(id: string, fecha: Date) {
     const resultado = await this.modelo
-    .updateMany(
-      { ancestros: id, enPapelera: true, eliminadaPorCascada: true, fechaEliminacion: fecha },
-      { $set: { enPapelera: false, fechaEliminacion: null, eliminadaPorCascada: false } },
-    )
-    .exec();
+      .updateMany(
+        { ancestros: id, enPapelera: true, eliminadaPorCascada: true, fechaEliminacion: fecha },
+        { $set: { enPapelera: false, fechaEliminacion: null, eliminadaPorCascada: false } },
+      )
+      .exec();
 
     return resultado.modifiedCount;
   }
 
-  restaurarRaiz(id: string, datos: { nomnbre: string;  carpetaPadre: Types.ObjectId | null }) {
+  restaurarRaiz(id: string, datos: { nombre: string; carpetaPadre: Types.ObjectId | null }) {
     return this.modelo
-    .findOneAndUpdate(
-      {_id: id, enPapelera: true, eliminadaPorCascada: false },
-      {
-        $set: {
-          enPapelera: false,
-          fechaEliminacion: null,
-          eliminadaPorCascada: false,
-          nombre: datos.nomnbre,
-          carpetaPadre: datos.carpetaPadre,
+      .findOneAndUpdate(
+        { _id: id, enPapelera: true, eliminadaPorCascada: false },
+        {
+          $set: {
+            enPapelera: false,
+            fechaEliminacion: null,
+            eliminadaPorCascada: false,
+            nombre: datos.nombre,
+            carpetaPadre: datos.carpetaPadre,
+          },
         },
-      },
-    )
-    .exec();
+      )
+      .exec();
   }
 
   async eliminarPorIds(ids: Types.ObjectId[]) {
