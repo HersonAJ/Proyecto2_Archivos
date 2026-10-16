@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { COLACION_ES } from "../../common/constants/colacion.constante";
 import { escaparRegex } from "../../common/utils/regex.util";
 import { Archivo, ArchivoDocument } from "../entities/archivo.entity";
@@ -62,5 +62,102 @@ export class ArchivosRepository {
         ]);
 
         return { datos, total };
+    }
+    
+    //metodos para la papelera
+    buscarRaizEnPapelera(id: string, propietario: string) {
+        return this.modelo
+        .findOne({ _id: id, propietario, enPapelera: true, eliminadoPorCascada: false})
+        .exec();
+    }
+
+    listarRaicesEnPapelera(propietario: string, limite: number) {
+        return this.modelo
+        .find({ propietario, enPapelera: true, eliminadoPorCascada: false })
+        .sort({ fechaEliminacion: -1})
+        .limit(limite)
+        .exec();
+    }
+
+    enviarAPapelera(id: string, fecha: Date) {
+        return this.modelo
+        .findOneAndUpdate(
+            { _id: id, enPapelera: false },
+            { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadoPorCascada: false } },
+        )
+        .exec();
+    }
+
+    async enviarAPapeleraPorCarpetas(carpetas: Types.ObjectId[], fecha: Date) {
+        const resultado = await this.modelo
+        .updateMany(
+            { carpeta: { $in: carpetas}, enPapelera: false},
+            { $set: { enPapelera: true, fechaEliminacion: fecha, eliminadoPorCascada: true } },
+        )
+        .exec();
+        return resultado.modifiedCount;
+    }
+
+    //hay un archivo activo con ese nombre en la carpeta 
+    existeHermano(propietario: string, carpeta: Types.ObjectId | null, nombre: string) {
+        return this.modelo
+        .exists({ propietario, carpeta, nombre, enPapelera: false})
+        .collation(COLACION_ES)
+        .exec();
+    }
+
+    restaurarRaiz(id: string, datos: { nombre: string; carpeta: Types.ObjectId | null}) {
+        return this.modelo
+        .findOneAndUpdate(
+            { _id: id, enPapelera: true, eliminadoPorCascada: false },
+            {
+                $set: {
+                    enPapelera: false,
+                    fechaEliminacion: null,
+                    eliminadoPorCascada: false,
+                    nombre: datos.nombre,
+                    carpeta: datos.carpeta,
+                },
+            },
+            { returnDocument: 'after', runValidators: true },
+        )
+        .exec();
+    }
+
+    //restaurar solo los archivos que se fueron en ese mismo lote
+    async restaurarPorCarpeta(carpetas: Types.ObjectId[], fecha: Date) {
+        const resultado = await this.modelo
+        .updateMany(
+            { carpeta: { $in: carpetas }, enPapelera: true, eliminadoPorCascada: true, fechaEliminacion: fecha },
+            { $set: { enPapelera: false, fechaEliminacion: null, eliminadoPorCascada: false } },
+        )
+        .exec();
+        return resultado.modifiedCount;
+    }
+
+    buscarPorCarpeta(carpetas: Types.ObjectId[], propietario: string) {
+        return this.modelo
+        .find({ propietario, carpeta: { $in: carpetas } })
+        .select('contenidoId tamano')
+        .lean()
+        .exec();
+    }
+
+    buscarTodosEnPapelera(propietario: string) {
+        return this.modelo
+        .find({ propietario, enPapelera: true })
+        .select('contenidoId tamano')
+        .lean()
+        .exec();
+    }
+
+    async eliminarUnoEnPapelera(id: string) {
+        const resultado = await this.modelo.deleteOne({ _id: id, enPapelera: true }).exec();
+        return resultado.deletedCount;
+    }
+
+    async eliminarPorIds(ids: Types.ObjectId[]) {
+        const resultado = await this.modelo.deleteMany({ _id: { $in: ids } }).exec();
+        return resultado.deletedCount;
     }
 }
