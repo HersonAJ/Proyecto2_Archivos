@@ -15,6 +15,8 @@ import { Carpeta, RutaCarpeta } from '../../models/carpetas.model';
 import { CarpetasService } from '../../service/carpetas.service';
 import { CarpetaFormComponent, DatosCarpetaForm } from '../carpeta-form/carpeta-form.component';
 import { CarpetaMoverComponent } from '../carpeta-mover/carpeta-mover.component';
+import { PapeleraService } from '../../../papelera/service/papelera.service';
+import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
 
 @Component({
   selector: 'app-carpeta-list',
@@ -36,6 +38,7 @@ export class CarpetaListComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly carpetasService = inject(CarpetasService);
+  private readonly papeleraService = inject(PapeleraService);
   private readonly listaArchivos = viewChild(ArchivoListComponent);
   protected readonly idActual = signal<string | null>(null);
 
@@ -111,6 +114,31 @@ export class CarpetaListComponent {
       .subscribe((movida) => {
         if (movida) this.terminar('Carpeta movida');
       });
+  }
+
+  protected eliminar(carpeta: Carpeta) {
+    this.papeleraService.enviarCarpeta(carpeta._id).subscribe({
+      next: () => {
+        this.recarga.next();
+        this.snackBar
+          .open(`«${carpeta.nombre}» se movió a la papelera`, 'Deshacer', { duration: 6000 })
+          .onAction()
+          .subscribe(() => this.deshacerEliminacion(carpeta._id));
+      },
+      error: (e: unknown) =>
+        this.snackBar.open(mensajeDeError(e, 'No se pudo eliminar la carpeta'), 'Cerrar', { duration: 4000 }),
+    });
+  }
+
+  private deshacerEliminacion(id: string) {
+    this.papeleraService.restaurarCarpeta(id).subscribe({
+      next: (resultado) => {
+        this.snackBar.open(mensajeRestauracion(resultado), 'Cerrar', { duration: 5000 });
+        this.recarga.next();
+      },
+      error: (e: unknown) =>
+        this.snackBar.open(mensajeDeError(e, 'No se pudo restaurar'), 'Cerrar', { duration: 4000 }),
+    });
   }
 
   private abrirFormulario(datos: DatosCarpetaForm, mensaje: string) {

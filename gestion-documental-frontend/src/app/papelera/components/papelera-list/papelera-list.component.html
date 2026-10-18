@@ -1,0 +1,66 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div>
+      <h1 class="titulo-pagina">Papelera</h1>
+      <p class="nota">Lo que eliminas sigue ocupando espacio hasta que lo eliminas definitivamente.</p>
+    </div>
+    <button mat-stroked-button (click)="vaciar()" [disabled]="elementos().length === 0 || procesando()">
+      <mat-icon>delete_sweep</mat-icon>
+      Vaciar papelera
+    </button>
+  </header>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (elementos().length === 0) {
+    <p class="vacio">La papelera está vacía.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Eliminado</th>
+            <th class="numerico">Tamaño</th>
+            <th class="columna-acciones"><span class="solo-lector">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (elemento of elementos(); track elemento.id) {
+            <tr>
+              <td>
+                <div class="celda-nombre">
+                  <mat-icon [class.md-file]="elemento.esMarkdown">{{ elemento.icono }}</mat-icon>
+                  <span>{{ elemento.nombre }}</span>
+                </div>
+              </td>
+              <td>{{ elemento.fechaEliminacion | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="numerico">
+                @if (elemento.tamano !== null) {
+                  {{ elemento.tamano | tamano }}
+                } @else {
+                  —
+                }
+              </td>
+              <td class="columna-acciones">
+                <button mat-icon-button matTooltip="Restaurar" aria-label="Restaurar"
+                        [disabled]="procesando()" (click)="restaurar(elemento)">
+                  <mat-icon>restore_from_trash</mat-icon>
+                </button>
+                <button mat-icon-button class="peligro" matTooltip="Eliminar definitivamente"
+                        aria-label="Eliminar definitivamente"
+                        [disabled]="procesando()" (click)="eliminarDefinitivamente(elemento)">
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

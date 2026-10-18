@@ -12,7 +12,7 @@ import { CarpetasRepository } from "./repository/carpetas.repository";
     ],
     controllers: [CarpetasController],
     providers: [CarpetaService, CarpetasRepository],
-    exports: [CarpetaService],
+    exports: [CarpetaService, CarpetasRepository],
 })
 
 export class CarpetasModule { }

@@ -18,6 +18,8 @@ import { Archivo, TipoArchivo, OrdenArchivo, SentidoOrden } from '../../models/a
 import { ArchivosService } from '../../service/archivos.service';
 import { ArchivoFormComponent, DatosArchivoForm } from '../archivo-form/archivo-form.component';
 import { UsuariosService } from '../../../usuarios/services/usuarios.service';
+import { PapeleraService } from '../../../papelera/service/papelera.service';
+import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
 
 @Component({
   selector: 'app-archivo-list',
@@ -39,6 +41,7 @@ export class ArchivoListComponent {
   private readonly archivosService = inject(ArchivosService);
   private readonly dialog = inject(MatDialog);
   private readonly usuariosService = inject(UsuariosService);
+  private readonly papeleraService = inject(PapeleraService);
   readonly carpetaId = input<string | null>(null);
   protected readonly archivos = signal<Archivo[]>([]);
   protected readonly cargando = signal(true);
@@ -143,5 +146,32 @@ export class ArchivoListComponent {
 
   protected obtenerIconoTipo(tipo: TipoArchivo): string {
     return tipo === TipoArchivo.MD ? 'description' : 'text_snippet';
+  }
+
+    protected eliminar(archivo: Archivo) {
+    this.papeleraService.enviarArchivo(archivo._id).subscribe({
+      next: () => {
+        // Si era el único de una página que no es la primera, se retrocede una página
+        if (this.archivos().length === 1 && this.pagina() > 1) this.pagina.update((p) => p - 1);
+        this.recargar();
+        this.snackBar
+          .open(`«${archivo.nombre}» se movió a la papelera`, 'Deshacer', { duration: 6000 })
+          .onAction()
+          .subscribe(() => this.deshacerEliminacion(archivo._id));
+      },
+      error: (e: unknown) =>
+        this.snackBar.open(mensajeDeError(e, 'No se pudo eliminar el archivo'), 'Cerrar', { duration: 4000 }),
+    });
+  }
+
+  private deshacerEliminacion(id: string) {
+    this.papeleraService.restaurarArchivo(id).subscribe({
+      next: (resultado) => {
+        this.snackBar.open(mensajeRestauracion(resultado), 'Cerrar', { duration: 5000 });
+        this.recargar();
+      },
+      error: (e: unknown) =>
+        this.snackBar.open(mensajeDeError(e, 'No se pudo restaurar'), 'Cerrar', { duration: 4000 }),
+    });
   }
 }

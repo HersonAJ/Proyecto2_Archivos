@@ -28,6 +28,6 @@ import { ContenidosRepository } from './repository/contenidos.repository';
   ],
   controllers: [ArchivosController],
   providers: [ArchivosService, ArchivosRepository, ContenidosRepository],
-  exports: [ArchivosService],
+  exports: [ArchivosService, ArchivosRepository, ContenidosRepository],
 })
 export class ArchivosModule {}

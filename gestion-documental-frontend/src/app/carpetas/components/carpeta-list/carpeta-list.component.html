@@ -1,18 +1,18 @@
-<header class="cabecera">
-  <h1 class="titulo-pagina">Mis documentos</h1>
-  <div class="acciones">
-    <button mat-stroked-button (click)="nuevaCarpeta()" [disabled]="error() !== null">
-      <mat-icon>create_new_folder</mat-icon>
-      Nueva carpeta
-    </button>
-    <button mat-flat-button (click)="subirArchivo()" [disabled]="error() !== null">
-      <mat-icon>upload_file</mat-icon>
-      Subir archivo
-    </button>
-  </div>
-</header>
-
 <main class="contenido">
+  <header class="cabecera">
+    <h1 class="titulo-pagina">Mis documentos</h1>
+    <div class="acciones">
+      <button mat-stroked-button (click)="nuevaCarpeta()" [disabled]="error() !== null">
+        <mat-icon>create_new_folder</mat-icon>
+        Nueva carpeta
+      </button>
+      <button mat-flat-button (click)="subirArchivo()" [disabled]="error() !== null">
+        <mat-icon>upload_file</mat-icon>
+        Subir archivo
+      </button>
+    </div>
+  </header>
+
   <nav class="migas" aria-label="Ruta de la carpeta">
     <a routerLink="/carpetas">Mis documentos</a>
     @for (paso of ruta(); track paso._id) {
@@ -51,6 +51,10 @@
               <button mat-menu-item (click)="mover(c)">
                 <mat-icon>drive_file_move</mat-icon>
                 <span>Mover</span>
+              </button>
+              <button mat-menu-item (click)="eliminar(c)">
+                <mat-icon>delete</mat-icon>
+                <span>Eliminar</span>
               </button>
             </mat-menu>
           </mat-list-item>

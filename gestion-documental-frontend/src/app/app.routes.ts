@@ -3,6 +3,7 @@ import { LoginComponent } from './login/login.component';
 import { CarpetaListComponent } from './carpetas/components/carpeta-list/carpeta-list.component';
 import { ShellComponent } from './interfaz/components/sidebar/sidebar.component';
 import { authGuard } from './core/guards/auth.guard';
+import { PapeleraListComponent } from './papelera/components/papelera-list/papelera-list.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
@@ -16,6 +17,7 @@ export const routes: Routes = [
     children: [
       { path: 'carpetas', component: CarpetaListComponent },
       { path: 'carpetas/:id', component: CarpetaListComponent },
+      { path: 'papelera', component: PapeleraListComponent },
 
       { path: '', redirectTo: 'carpetas', pathMatch: 'full' },
     ],
