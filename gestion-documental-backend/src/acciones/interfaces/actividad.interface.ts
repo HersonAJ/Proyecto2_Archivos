@@ -3,6 +3,7 @@ import { TipoRecurso } from "../../common/enums/tipo-recurso.enum";
 
 export interface DatosActividad {
     usuario: string;
+    propietarioRecurso?: string;
     accion: AccionActividad;
     tipoRecurso: TipoRecurso;
     recurso: string;
@@ -12,6 +13,7 @@ export interface DatosActividad {
 
 export interface FiltroActividades {
     usuario?: string;
+    participante?: string;
     accion?: AccionActividad;
     tipoRecurso?: TipoRecurso;
     recurso?: string;

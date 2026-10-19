@@ -8,7 +8,7 @@ export type ActividadDocument = HydratedDocument<Actividad>;
 
 @Schema({
     collection: 'actividades',
-    timestamps: { createdAt: 'fecha', updatedAt: false},
+    timestamps: { createdAt: 'fecha', updatedAt: false },
     versionKey: false,
 })
 export class Actividad {
@@ -25,20 +25,25 @@ export class Actividad {
     @Prop({ required: true, enum: TipoRecurso })
     tipoRecurso: TipoRecurso;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, required: true})
+    @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
     recurso: Types.ObjectId;
 
-    @Prop({ required: true, trim: true})
+    @Prop({ required: true, trim: true })
     nombreRecurso: string;
 
-    @Prop({ type: Object, default:{} })
+    @Prop({ type: Object, default: {} })
     detalles: Record<string, unknown>;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: Usuario.name })
+    propietarioRecurso: Types.ObjectId;
+
 
     fecha: Date;
 }
 
 export const ActividadSchema = SchemaFactory.createForClass(Actividad);
 
-ActividadSchema.index({ usuario:1, fecha: -1 });
-ActividadSchema.index({ recurso: 1, fecha: -1});
-ActividadSchema.index({ fecha: -1});
+ActividadSchema.index({ usuario: 1, fecha: -1 });
+ActividadSchema.index({ recurso: 1, fecha: -1 });
+ActividadSchema.index({ fecha: -1 });
+ActividadSchema.index({ propietarioRecurso: 1, fecha: -1 });

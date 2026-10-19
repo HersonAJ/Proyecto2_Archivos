@@ -91,6 +91,14 @@ export class UsuariosService {
     if (id === actual.id) {
       throw new BadRequestException('No puedes desactivar tu propia cuenta');
     }
-    return this. desactivar(id);
+    return this.desactivar(id);
+  }
+
+  buscarActivoPorCorreo(correo: string) {
+    return this.usuariosRepository.buscarActivoPorCorreo(correo);
+  }
+
+  buscarEnDirectorio(texto: string, actual: UsuarioAutenticado) {
+    return this.usuariosRepository.buscarEnDirectorio(texto, actual.id, 8);
   }
 }

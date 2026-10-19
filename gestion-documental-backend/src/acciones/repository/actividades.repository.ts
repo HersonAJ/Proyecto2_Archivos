@@ -19,6 +19,12 @@ export class ActividadesRepository {
         const consulta = this.modelo.find();
 
         if (filtro.usuario) consulta.where('usuario').equals(filtro.usuario);
+        if (filtro.participante) {
+            consulta.or([
+                { usuario: filtro.participante },
+                { propietarioRecurso: filtro.participante },
+            ]);
+        }
         if (filtro.accion) consulta.where('accion').equals(filtro.accion);
         if (filtro.tipoRecurso) consulta.where('tipoRecurso').equals(filtro.tipoRecurso);
         if (filtro.recurso) consulta.where('recuros').equals(filtro.recurso);
@@ -27,11 +33,11 @@ export class ActividadesRepository {
 
         const [datos, total] = await Promise.all([
             consulta
-            .clone()
-            .sort({fecha: -1}) // el -1 es para ordenar descendente
-            .skip((pagina - 1) * limite)
-            .limit(limite)
-            .exec(),
+                .clone()
+                .sort({ fecha: -1 }) // el -1 es para ordenar descendente
+                .skip((pagina - 1) * limite)
+                .limit(limite)
+                .exec(),
             this.modelo.countDocuments(consulta.getFilter()),
         ]);
 

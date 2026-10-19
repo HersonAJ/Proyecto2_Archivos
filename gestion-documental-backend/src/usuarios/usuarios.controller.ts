@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -8,6 +8,7 @@ import { RolUsuario } from '../common/enums/rol-usuario.enum';
 import { Roles } from '../autenticacion/decorators/roles.decorator';
 import { UsuarioActual } from '../autenticacion/decorators/usuario-actual.decorator';
 import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
+import { BuscarUsuariosDto } from './dto/buscar-usurios.dto';
 
 @Controller('usuarios')
 @Roles(RolUsuario.ADMIN)
@@ -64,5 +65,11 @@ export class UsuariosController {
   @Patch(':id/activar')
   activar(@Param('id', ParseObjectIdPipe1) id: string) {
     return this.usuariosService.activar(id);
+  }
+
+  @Get('buscar')
+  @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
+  buscar(@Query() filtros: BuscarUsuariosDto, @UsuarioActual() actual: UsuarioAutenticado) {
+    return this.usuariosService.buscarEnDirectorio(filtros.q, actual);
   }
 }

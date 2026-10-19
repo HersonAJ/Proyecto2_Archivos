@@ -10,6 +10,7 @@ import { TipoRecurso } from '../common/enums/tipo-recurso.enum';
 import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
 import { nombreAlternativo } from '../common/utils/nombres.util';
 import { UsuariosService } from '../usuarios/usuarios.service';
+import { ComparticionesRepository } from '../comparticiones/repository/comparticiones.repository';
 
 const LIMITE_LISTA = 500; // tope de elementos que devuelve la lista de la papelera
 const NO_EN_PAPELERA = 'El elemento no esta en la papelera';
@@ -25,9 +26,9 @@ export class PapeleraService {
         private readonly contenidosRepository: ContenidosRepository,
         private readonly usuariosService: UsuariosService,
         private readonly actividadesService: ActividadesService,
+        private readonly comparticionesRepository: ComparticionesRepository,
     ) { }
 
-    // Solo los elementos "raiz": lo que se elimino por arrastre va dentro de su carpeta
     async listar(actual: UsuarioAutenticado) {
         const [carpetas, archivos] = await Promise.all([
             this.carpetasRepository.listarRaicesEnPapelera(actual.id, LIMITE_LISTA),
@@ -37,7 +38,6 @@ export class PapeleraService {
     }
 
     // Enviar a la papelera
-
     async enviarArchivo(id: string, actual: UsuarioAutenticado) {
         const archivo = await this.archivosRepository.buscarActivo(id, actual.id);
         if (!archivo) throw new NotFoundException('Archivo no encontrado');
@@ -125,12 +125,10 @@ export class PapeleraService {
             else enUbicacionOriginal = false;
         }
 
-        // Si cambia de lugar, se recalculan los ancestros de ella y de todo su contenido
         if (!enUbicacionOriginal) {
             await this.carpetasRepository.moverConDescendientes(carpeta.id, null, []);
         }
 
-        // Nombre libre en el destino
         const nombre = await this.elegirNombre(
             carpeta.nombre,
             { conExtension: false, maximo: 100, etiqueta: 'restaurada' },
@@ -143,7 +141,6 @@ export class PapeleraService {
                 )) !== null,
         );
 
-        //Primero vuelve su contenido (solo el de este lote)
         const subcarpetas = await this.carpetasRepository.idsSubarbol(carpeta.id);
         const archivos = await this.archivosRepository.restaurarPorCarpetas(
             [carpeta._id, ...subcarpetas],
@@ -172,9 +169,9 @@ export class PapeleraService {
         const archivo = await this.archivosRepository.buscarRaizEnPapelera(id, actual.id);
         if (!archivo) throw new NotFoundException(NO_EN_PAPELERA);
 
-        // Primero el documento, despues el contenido y al final el espacio.
         const eliminados = await this.archivosRepository.eliminarUnoEnPapelera(archivo.id);
         if (eliminados === 0) throw new NotFoundException(NO_EN_PAPELERA);
+        await this.comparticionesRepository.eliminarPorRecursos([archivo._id]);
         await this.eliminarContenidos([archivo.contenidoId.toString()]);
         await this.usuariosService.ajustarAlmacenamiento(actual.id, -archivo.tamano);
 
@@ -195,6 +192,10 @@ export class PapeleraService {
 
         await this.archivosRepository.eliminarPorIds(archivos.map((a) => a._id));
         await this.carpetasRepository.eliminarPorIds(idsCarpetas);
+            await this.comparticionesRepository.eliminarPorRecursos([
+      ...idsCarpetas,
+      ...archivos.map((a) => a._id),
+    ]);
         await this.eliminarContenidos(archivos.map((a) => a.contenidoId.toString()));
         if (bytes > 0) await this.usuariosService.ajustarAlmacenamiento(actual.id, -bytes);
 
@@ -217,10 +218,14 @@ export class PapeleraService {
 
         await this.archivosRepository.eliminarPorIds(archivos.map((a) => a._id));
         await this.carpetasRepository.eliminarPorIds(idsCarpetas);
+
+            await this.comparticionesRepository.eliminarPorRecursos([
+      ...idsCarpetas,
+      ...archivos.map((a) => a._id),
+    ]);
         await this.eliminarContenidos(archivos.map((a) => a.contenidoId.toString()));
         if (bytes > 0) await this.usuariosService.ajustarAlmacenamiento(actual.id, -bytes);
 
-        // Un evento por cada elemento raiz que habia en la papelera
         await Promise.all([
             ...raicesCarpetas.map((c) =>
                 this.registrar(actual, AccionActividad.ELIMINAR_DEFINITIVO, TipoRecurso.CARPETA, c.id, c.nombre, { vaciado: true }),
@@ -237,7 +242,7 @@ export class PapeleraService {
 
     // Auxiliares
 
-    // Devuelve el nombre original si esta libre; si no, prueba "(restaurado)", "(restaurado 2)", ...
+    // Devuelve el nombre original si esta libre si no, prueba "(restaurado)"
     private async elegirNombre(
         nombre: string,
         opciones: { conExtension: boolean; maximo: number; etiqueta: 'restaurado' | 'restaurada' },

@@ -5,9 +5,10 @@ import { CarpetasModule } from '../carpetas/carpetas.module';
 import { UsuariosModule } from '../usuarios/usuarios.module';
 import { PapeleraController } from './papelera.controller';
 import { PapeleraService } from './papelera.service';
+import { ComparticionesModule } from '../comparticiones/comparticiones.module';
 
 @Module({
-  imports: [ArchivosModule, CarpetasModule, UsuariosModule, ActividadesModule],
+  imports: [ArchivosModule, CarpetasModule, UsuariosModule, ActividadesModule, ComparticionesModule],
   controllers: [PapeleraController],
   providers: [PapeleraService],
 })
