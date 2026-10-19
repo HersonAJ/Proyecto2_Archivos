@@ -12,8 +12,7 @@ import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-a
 @Controller('usuarios')
 @Roles(RolUsuario.ADMIN)
 export class UsuariosController {
-  constructor(private readonly usuariosService: UsuariosService) {}
-
+  constructor(private readonly usuariosService: UsuariosService) { }
 
   @Get('perfil')
   @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
@@ -49,13 +48,17 @@ export class UsuariosController {
   update(
     @Param('id', ParseObjectIdPipe1) id: string,
     @Body() dto: UpdateUsuarioDto,
+    @UsuarioActual() actual: UsuarioAutenticado,
   ) {
-    return this.usuariosService.update(id, dto);
+    return this.usuariosService.actualizarPorAdmin(id, dto, actual);
   }
 
   @Patch(':id/desactivar')
-  desactivar(@Param('id', ParseObjectIdPipe1) id: string) {
-    return this.usuariosService.desactivar(id);
+  desactivar(
+    @Param('id', ParseObjectIdPipe1) id: string,
+    @UsuarioActual() actual: UsuarioAutenticado,
+  ) {
+    return this.usuariosService.desactivarPorAdmin(id, actual);
   }
 
   @Patch(':id/activar')

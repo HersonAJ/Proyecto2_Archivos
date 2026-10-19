@@ -4,6 +4,7 @@ import { CarpetaListComponent } from './carpetas/components/carpeta-list/carpeta
 import { ShellComponent } from './interfaz/components/sidebar/sidebar.component';
 import { authGuard } from './core/guards/auth.guard';
 import { PapeleraListComponent } from './papelera/components/papelera-list/papelera-list.component';
+import { UsuarioListComponent } from './usuarios/components/usuario-list/usuario-list.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
@@ -18,6 +19,9 @@ export const routes: Routes = [
       { path: 'carpetas', component: CarpetaListComponent },
       { path: 'carpetas/:id', component: CarpetaListComponent },
       { path: 'papelera', component: PapeleraListComponent },
+
+
+      { path: 'usuarios', component: UsuarioListComponent, canActivate: [rolGuard(['ADMIN'])] },
 
       { path: '', redirectTo: 'carpetas', pathMatch: 'full' },
     ],

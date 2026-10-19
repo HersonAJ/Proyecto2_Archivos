@@ -15,6 +15,12 @@
           <mat-icon>delete_outline</mat-icon>
           <span>Papelera</span>
         </a>
+        @if (autenticacion.esAdmin()) {
+          <a class="enlace-nav" routerLink="/usuarios" routerLinkActive="activo" (click)="cerrarSiMovil(menu)">
+            <mat-icon>group</mat-icon>
+            <span>Usuarios</span>
+          </a>
+        }
       </nav>
 
       <div class="almacenamiento">

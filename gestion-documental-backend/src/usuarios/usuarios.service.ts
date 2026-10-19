@@ -4,6 +4,9 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosRepository } from './repository/usuarios.repository';
 import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
+import { BadRequestException } from '@nestjs/common';
+import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
+import { RolUsuario } from '../common/enums/rol-usuario.enum';
 
 @Injectable()
 export class UsuariosService {
@@ -75,5 +78,19 @@ export class UsuariosService {
 
   ajustarAlmacenamiento(id: string, delta: number) {
     return this.usuariosRepository.ajustarAlmacenamiento(id, delta);
+  }
+
+  async actualizarPorAdmin(id: string, dto: UpdateUsuarioDto, actual: UsuarioAutenticado) {
+    if (id === actual.id && dto.rol !== undefined && dto.rol !== RolUsuario.ADMIN) {
+      throw new BadRequestException('No puedes quitarte a ti mismo el rol de administrador');
+    }
+    return this.update(id, dto);
+  }
+
+  async desactivarPorAdmin(id: string, actual: UsuarioAutenticado) {
+    if (id === actual.id) {
+      throw new BadRequestException('No puedes desactivar tu propia cuenta');
+    }
+    return this. desactivar(id);
   }
 }

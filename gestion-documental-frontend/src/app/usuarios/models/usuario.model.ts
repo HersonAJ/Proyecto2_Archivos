@@ -9,3 +9,12 @@ export interface Usuario {
   almacenamientoUsado: number;
   createdAt: string;
 }
+
+export interface CrearUsuario {
+  nombre: string;
+  correo: string;
+  password: string;
+  rol?: RolUsuario;
+}
+
+export type ActualizarUsuario = Partial<CrearUsuario>;

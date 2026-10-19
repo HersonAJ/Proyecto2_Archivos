@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+
+<form [formGroup]="formulario" (ngSubmit)="guardar()">
+  <mat-dialog-content class="contenido-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" maxlength="100" autocomplete="off" cdkFocusInitial />
+      @if (formulario.controls.nombre.invalid) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Correo</mat-label>
+      <input matInput type="email" formControlName="correo" autocomplete="off" />
+      @if (formulario.controls.correo.hasError('required')) {
+        <mat-error>El correo es obligatorio</mat-error>
+      } @else if (formulario.controls.correo.hasError('email')) {
+        <mat-error>El correo no es válido</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ esEdicion ? 'Nueva contraseña (opcional)' : 'Contraseña' }}</mat-label>
+      <input matInput [type]="ocultarPassword() ? 'password' : 'text'"
+             formControlName="password" autocomplete="new-password" maxlength="72" />
+      <button mat-icon-button matSuffix type="button"
+              [attr.aria-label]="ocultarPassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+              (click)="ocultarPassword.set(!ocultarPassword())">
+        <mat-icon>{{ ocultarPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
+      @if (esEdicion) {
+        <mat-hint>Déjala vacía para conservar la actual</mat-hint>
+      }
+      @if (formulario.controls.password.hasError('required')) {
+        <mat-error>La contraseña es obligatoria</mat-error>
+      } @else if (formulario.controls.password.hasError('minlength')) {
+        <mat-error>Debe tener al menos 6 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Rol</mat-label>
+      <mat-select formControlName="rol">
+        <mat-option value="USUARIO">Usuario</mat-option>
+        <mat-option value="ADMIN">Administrador</mat-option>
+      </mat-select>
+      @if (datos.esPropio) {
+        <mat-hint>No puedes cambiar tu propio rol</mat-hint>
+      }
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="enviando()">
+      {{ esEdicion ? 'Guardar' : 'Crear usuario' }}
+    </button>
+  </mat-dialog-actions>
+</form>

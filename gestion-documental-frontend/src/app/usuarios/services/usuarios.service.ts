@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { ApiService } from '../../core/service/api.service'; 
-import { Usuario } from './models/usuario.model';
+import { ApiService } from '../../core/service/api.service';
+import { Usuario, ActualizarUsuario, CrearUsuario } from '../models/usuario.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService extends ApiService {
@@ -17,5 +17,25 @@ export class UsuariosService extends ApiService {
       next: (perfil) => this.almacenamientoUsado.set(perfil.almacenamientoUsado),
       error: () => undefined,
     });
+  }
+
+  listar() {
+    return this.http.get<Usuario[]>(`${this.baseUrl}/usuarios`);
+  }
+
+  crear(datos: CrearUsuario) {
+    return this.http.post<Usuario>(`${this.baseUrl}/usuarios`, datos);
+  }
+
+  actualizar(id: string, datos: ActualizarUsuario) {
+    return this.http.patch<Usuario>(`${this.baseUrl}/usuarios/${id}`, datos);
+  }
+
+  activar(id: string) {
+    return this.http.patch<Usuario>(`${this.baseUrl}/usuarios/${id}/activar`, {});
+  }
+
+  desactivar(id: string) {
+    return this.http.patch<Usuario>(`${this.baseUrl}/usuarios/${id}/desactivar`, {});
   }
 }

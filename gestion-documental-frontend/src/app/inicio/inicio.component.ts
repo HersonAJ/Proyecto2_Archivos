@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../auntenticacion/services/auth.service';
-import { Usuario } from '../usuarios/services/models/usuario.model';
+import { Usuario } from '../usuarios/models/usuario.model';
 import { UsuariosService } from '../usuarios/services/usuarios.service';
 import { RouterLink } from '@angular/router';
 

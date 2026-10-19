@@ -1,0 +1,122 @@
+.contenido {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.titulo-pagina {
+  font: var(--mat-sys-headline-small);
+  margin: 0;
+}
+
+.nota {
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.centrado {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 8px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  th {
+    font: var(--mat-sys-label-large);
+    color: var(--mat-sys-on-surface-variant);
+    background: var(--mat-sys-surface-container);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.fila-inactiva {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.numerico {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.columna-acciones {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.nombre-usuario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.correo {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.insignia {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font: var(--mat-sys-label-small);
+
+  &.activo {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+  }
+
+  &.inactivo {
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &.propia {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+}
+
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}

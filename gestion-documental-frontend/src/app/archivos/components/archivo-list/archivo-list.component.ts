@@ -148,10 +148,9 @@ export class ArchivoListComponent {
     return tipo === TipoArchivo.MD ? 'description' : 'text_snippet';
   }
 
-    protected eliminar(archivo: Archivo) {
+  protected eliminar(archivo: Archivo) {
     this.papeleraService.enviarArchivo(archivo._id).subscribe({
       next: () => {
-        // Si era el único de una página que no es la primera, se retrocede una página
         if (this.archivos().length === 1 && this.pagina() > 1) this.pagina.update((p) => p - 1);
         this.recargar();
         this.snackBar

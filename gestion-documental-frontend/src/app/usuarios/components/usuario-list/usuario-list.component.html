@@ -1,0 +1,75 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div>
+      <h1 class="titulo-pagina">Usuarios</h1>
+      <p class="nota">Administra quién puede entrar a la plataforma. Desactivar a un usuario no borra su información.</p>
+    </div>
+    <button mat-flat-button (click)="nuevo()">
+      <mat-icon>person_add</mat-icon>
+      Nuevo usuario
+    </button>
+  </header>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th class="numerico">Espacio usado</th>
+            <th>Creado</th>
+            <th class="columna-acciones"><span class="solo-lector">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (usuario of usuarios(); track usuario._id) {
+            <tr [class.fila-inactiva]="!usuario.activo">
+              <td>
+                <div class="nombre-usuario">
+                  <strong>{{ usuario.nombre }}</strong>
+                  @if (esPropio(usuario)) {
+                    <span class="insignia propia">Tú</span>
+                  }
+                </div>
+                <div class="correo">{{ usuario.correo }}</div>
+              </td>
+              <td>{{ etiquetaRol(usuario) }}</td>
+              <td>
+                <span class="insignia" [class.activo]="usuario.activo" [class.inactivo]="!usuario.activo">
+                  {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="numerico">{{ usuario.almacenamientoUsado | tamano }}</td>
+              <td>{{ usuario.createdAt | date: 'dd/MM/yyyy' }}</td>
+              <td class="columna-acciones">
+                <button mat-icon-button matTooltip="Editar" aria-label="Editar usuario"
+                        [disabled]="procesando()" (click)="editar(usuario)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                @if (usuario.activo) {
+                  <button mat-icon-button matTooltip="Desactivar" aria-label="Desactivar usuario"
+                          [disabled]="procesando() || esPropio(usuario)" (click)="desactivar(usuario)">
+                    <mat-icon>person_off</mat-icon>
+                  </button>
+                } @else {
+                  <button mat-icon-button matTooltip="Activar" aria-label="Activar usuario"
+                          [disabled]="procesando()" (click)="activar(usuario)">
+                    <mat-icon>how_to_reg</mat-icon>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
