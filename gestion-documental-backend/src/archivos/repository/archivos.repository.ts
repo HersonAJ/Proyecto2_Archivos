@@ -160,4 +160,8 @@ export class ArchivosRepository {
         const resultado = await this.modelo.deleteMany({ _id: { $in: ids } }).exec();
         return resultado.deletedCount;
     }
+
+    buscarActivoPorId(id: string) {
+        return this.modelo.findOne({ _id: id, enPapelera: false }).exec();
+    }
 }

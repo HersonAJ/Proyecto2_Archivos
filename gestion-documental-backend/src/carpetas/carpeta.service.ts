@@ -1,19 +1,23 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { ActividadesService } from "../acciones/actividades.service";
-import type { UsuarioAutenticado } from "../autenticacion/interfaces/solicitud-autenticada.interface";
-import { AccionActividad } from "../common/enums/accion-actividad.enum";
-import { TipoRecurso } from "../common/enums/tipo-recurso.enum";
-import { esClaveDuplicada } from "../common/utils/errores-mongo.util";
-import { CreateCarpetaDto } from "./dto/create-carpeta.dto";
-import { MoverCarpetaDto } from "./dto/mover-carpeta.dto";
-import { RenombrarCarpetaDto } from "./dto/renombrar-carpeta.dto";
-import { CarpetasRepository } from "./repository/carpetas.repository";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { AccesoService } from '../acceso/acceso.service';
+import { ActividadesService } from '../acciones/actividades.service';
+import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
+import { AccionActividad } from '../common/enums/accion-actividad.enum';
+import { NivelAcceso, NivelPermiso } from '../common/enums/nivel-permiso.enum';
+import { TipoRecurso } from '../common/enums/tipo-recurso.enum';
+import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
+import { CreateCarpetaDto } from './dto/create-carpeta.dto';
+import { MoverCarpetaDto } from './dto/mover-carpeta.dto';
+import { RenombrarCarpetaDto } from './dto/renombrar-carpeta.dto';
+import { CarpetaDocument } from './entities/carpeta.entity';
+import { CarpetasRepository } from './repository/carpetas.repository';
 
 @Injectable()
 export class CarpetaService {
     constructor(
         private readonly carpetasRepository: CarpetasRepository,
         private readonly actividadesService: ActividadesService,
+        private readonly accesoService: AccesoService,
     ) { }
 
     async crear(dto: CreateCarpetaDto, actual: UsuarioAutenticado) {
@@ -43,23 +47,39 @@ export class CarpetaService {
     }
 
     async listar(padre: string | undefined, actual: UsuarioAutenticado) {
-        if (padre) await this.obtenerActiva(padre, actual.id);
-        return this.carpetasRepository.listarPorPadre(actual.id, padre ?? null);
+        if (!padre) {
+            const propias = await this.carpetasRepository.listarPorPadre(actual.id, null);
+            return propias.map((c) => this.conNivel(c, 'PROPIETARIO'));
+        }
+
+        const acceso = await this.accesoService.exigirCarpeta(actual.id, padre, NivelPermiso.LECTURA);
+        const hijas = await this.carpetasRepository.listarPorPadre(acceso.propietarioId, padre);
+        if (acceso.nivel === 'PROPIETARIO') return hijas.map((c) => this.conNivel(c, 'PROPIETARIO'));
+        const directos = await this.accesoService.nivelesDirectos(actual.id, hijas.map((c) => c._id));
+        return hijas.map((c) =>
+            this.conNivel(c, this.accesoService.mayor(acceso.nivel, directos.get(c.id))),
+        );
     }
 
-    //devuelve la carpeta y su ruta
+    // Devuelve la carpeta (con el nivel del usuario) y su ruta
     async obtener(id: string, actual: UsuarioAutenticado) {
-        const carpeta = await this.obtenerActiva(id, actual.id);
-        const encontradas = await this.carpetasRepository.nombresDe(carpeta.ancestros);
-        const nombrePorId = new Map(
-            encontradas.map((c) => [c._id.toString(), c.nombre]),
-        );
+        const acceso = await this.accesoService.exigirCarpeta(actual.id, id, NivelPermiso.LECTURA);
+        const carpeta = await this.carpetasRepository.buscarActivaPorId(id);
+        if (!carpeta) throw new NotFoundException('Carpeta no encontrada');
 
-        const ruta = carpeta.ancestros.map((ancestro) => ({
+        let ancestros = carpeta.ancestros;
+        if (acceso.raizCompartida) {
+            const posicion = ancestros.findIndex((a) => a.toString() === acceso.raizCompartida);
+            ancestros = posicion >= 0 ? ancestros.slice(posicion) : [];
+        }
+
+        const encontradas = await this.carpetasRepository.nombresDe(ancestros);
+        const nombrePorId = new Map(encontradas.map((c) => [c._id.toString(), c.nombre]));
+        const ruta = ancestros.map((ancestro) => ({
             _id: ancestro.toString(),
             nombre: nombrePorId.get(ancestro.toString()) ?? '',
         }));
-        return { carpeta, ruta };
+        return { carpeta: this.conNivel(carpeta, acceso.nivel), ruta };
     }
 
     async renombrar(id: string, dto: RenombrarCarpetaDto, actual: UsuarioAutenticado) {
@@ -82,48 +102,39 @@ export class CarpetaService {
         return actualizada;
     }
 
-    //verificar si si mongo tiene transacciones
     async mover(id: string, dto: MoverCarpetaDto, actual: UsuarioAutenticado) {
-        //1 calidar todo antes de escribir
+
         const carpeta = await this.obtenerActiva(id, actual.id);
         const destino = dto.carpetaPadre
             ? await this.obtenerActiva(dto.carpetaPadre, actual.id)
-            : null
+            : null;
 
         const padreActual = carpeta.carpetaPadre?.toString() ?? null;
         const padreNuevo = destino?.id ?? null;
 
         if (padreActual === padreNuevo) {
-            throw new BadRequestException('La carpeta ya esta en esa ubicacion');
+            throw new BadRequestException('La carpeta ya está en esa ubicación');
         }
-
-        //ciclo: le destino es la propia carpeta o una de sus subcarpetas
         if (
             destino &&
             (destino.id === carpeta.id ||
                 destino.ancestros.some((ancestro) => ancestro.equals(carpeta._id)))
         ) {
             throw new BadRequestException(
-                'No se puede nover una carpeta dentro de si misma ni de sus subcarpetas',
+                'No se puede mover una carpeta dentro de sí misma ni de sus subcarpetas',
             );
         }
-
-        const hayNombreRepedito = await this.carpetasRepository.existeHermana(
+        const hayNombreRepetido = await this.carpetasRepository.existeHermana(
             actual.id,
             padreNuevo,
             carpeta.nombre,
             carpeta.id,
         );
-        if (hayNombreRepedito) this.lanzarNombreRepetido();
+        if (hayNombreRepetido) this.lanzarNombreRepetido();
 
-        //2 escribir, solo un comando actualiza la carpeta y todos sus descendientes
         const nuevosAncestros = destino ? [...destino.ancestros, destino._id] : [];
         await this.conNombreUnico(() =>
-            this.carpetasRepository.moverConDescendientes(
-                carpeta.id,
-                padreNuevo,
-                nuevosAncestros,
-            ),
+            this.carpetasRepository.moverConDescendientes(carpeta.id, padreNuevo, nuevosAncestros),
         );
 
         await this.actividadesService.registrar({
@@ -136,12 +147,20 @@ export class CarpetaService {
         });
         return this.obtenerActiva(id, actual.id);
     }
+    buscarActivaDelUsuario(id: string, propietario: string) {
+        return this.obtenerActiva(id, propietario);
+    }
 
-    //si la carpeta no existe, esta en la papelara o es de otro usuario: 404
-    private async obtenerActiva(id: string, propietario: string) {
-        const carpeta = await this.carpetasRepository.buscarActiva(id, propietario);
-        if (!carpeta) throw new NotFoundException('Carpeta no encontrada');
-        return carpeta;
+    private async obtenerActiva(id: string, usuarioId: string) {
+        const carpeta = await this.carpetasRepository.buscarActiva(id, usuarioId);
+        if (carpeta) return carpeta;
+        await this.accesoService.exigirCarpeta(usuarioId, id, 'PROPIETARIO');
+        throw new NotFoundException('Carpeta no encontrada');
+    }
+
+    // Agrega el nivel de acceso del usuario a los datos de la carpeta
+    private conNivel(carpeta: CarpetaDocument, nivel: NivelAcceso) {
+        return { ...carpeta.toJSON(), nivel };
     }
 
     private async conNombreUnico<T>(operacion: () => Promise<T>): Promise<T> {
@@ -154,12 +173,6 @@ export class CarpetaService {
     }
 
     private lanzarNombreRepetido(): never {
-        throw new ConflictException(
-            'Ya existe una carpeta con ese nombre en esta ubicacion',
-        );
-    }
-
-    buscarActivaDelUsuario(id: string, propietario: string) {
-        return this.obtenerActiva(id, propietario);
+        throw new ConflictException('Ya existe una carpeta con ese nombre en esta ubicación');
     }
 }

@@ -11,6 +11,7 @@ import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
 import { nombreAlternativo } from '../common/utils/nombres.util';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ComparticionesRepository } from '../comparticiones/repository/comparticiones.repository';
+import { AccesoService } from '../acceso/acceso.service';
 
 const LIMITE_LISTA = 500; // tope de elementos que devuelve la lista de la papelera
 const NO_EN_PAPELERA = 'El elemento no esta en la papelera';
@@ -27,6 +28,7 @@ export class PapeleraService {
         private readonly usuariosService: UsuariosService,
         private readonly actividadesService: ActividadesService,
         private readonly comparticionesRepository: ComparticionesRepository,
+        private readonly accesoService: AccesoService,
     ) { }
 
     async listar(actual: UsuarioAutenticado) {
@@ -40,7 +42,10 @@ export class PapeleraService {
     // Enviar a la papelera
     async enviarArchivo(id: string, actual: UsuarioAutenticado) {
         const archivo = await this.archivosRepository.buscarActivo(id, actual.id);
-        if (!archivo) throw new NotFoundException('Archivo no encontrado');
+        if (!archivo) {
+        await this.accesoService.exigirArchivo(actual.id, id, 'PROPIETARIO');
+        throw new NotFoundException('Archivo no encontrado');
+        }
 
         const enPapelera = await this.archivosRepository.enviarAPapelera(archivo.id, new Date());
         if (!enPapelera) throw new NotFoundException('Archivo no encontrado');
@@ -53,7 +58,10 @@ export class PapeleraService {
 
     async enviarCarpeta(id: string, actual: UsuarioAutenticado) {
         const carpeta = await this.carpetasRepository.buscarActiva(id, actual.id);
-        if (!carpeta) throw new NotFoundException('Carpeta no encontrada');
+        if (!carpeta) {
+        await this.accesoService.exigirCarpeta(actual.id, id, 'PROPIETARIO');
+        throw new NotFoundException('Carpeta no encontrada');
+        }
 
         // Una sola fecha para todo el lote: luego sirve para restaurar exactamente lo que se fue con ella
         const fecha = new Date();

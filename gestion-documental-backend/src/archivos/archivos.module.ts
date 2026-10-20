@@ -10,6 +10,7 @@ import { ArchivosService } from './archivos.service';
 import { Archivo, ArchivoSchema } from './entities/archivo.entity';
 import { ArchivosRepository } from './repository/archivos.repository';
 import { ContenidosRepository } from './repository/contenidos.repository';
+import { AccesoModule } from '../acceso/acceso.module';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { ContenidosRepository } from './repository/contenidos.repository';
     }),
     ActividadesModule,
     UsuariosModule,
-    CarpetasModule,
+    CarpetasModule, AccesoModule,
   ],
   controllers: [ArchivosController],
   providers: [ArchivosService, ArchivosRepository, ContenidosRepository],

@@ -1,10 +1,12 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { isUtf8 } from 'node:buffer';
 import { basename, extname } from 'node:path';
+import { AccesoService } from '../acceso/acceso.service';
 import { ActividadesService } from '../acciones/actividades.service';
 import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
 import { CarpetaService } from '../carpetas/carpeta.service';
 import { AccionActividad } from '../common/enums/accion-actividad.enum';
+import { NivelAcceso, NivelPermiso } from '../common/enums/nivel-permiso.enum';
 import { TipoArchivo } from '../common/enums/tipo-archivo.enum';
 import { TipoRecurso } from '../common/enums/tipo-recurso.enum';
 import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
@@ -13,6 +15,7 @@ import { ActualizarArchivoDto } from './dto/actualizar-archivo.dto';
 import { ListarArchivosDto } from './dto/listar-archivos.dto';
 import { MoverArchivoDto } from './dto/mover-archivo.dto';
 import { SubirArchivoDto } from './dto/subir-archivo.dto';
+import { ArchivoDocument } from './entities/archivo.entity';
 import { ArchivosRepository } from './repository/archivos.repository';
 import { ContenidosRepository } from './repository/contenidos.repository';
 
@@ -29,6 +32,7 @@ export class ArchivosService {
     private readonly carpetaService: CarpetaService,
     private readonly usuariosService: UsuariosService,
     private readonly actividadesService: ActividadesService,
+    private readonly accesoService: AccesoService,
   ) {}
 
   async subir(
@@ -36,7 +40,6 @@ export class ArchivosService {
     dto: SubirArchivoDto,
     actual: UsuarioAutenticado,
   ) {
-    // 1 Validar todo ANTES de escribir
     if (!archivo) {
       throw new BadRequestException('Debes enviar un archivo en el campo "archivo"');
     }
@@ -48,10 +51,9 @@ export class ArchivosService {
       ? await this.carpetaService.buscarActivaDelUsuario(dto.carpeta, actual.id)
       : null;
 
-    // 2 Guardar el contenido en GridFS
     const contenidoId = await this.contenidosRepository.guardar(archivo.buffer, nombre);
 
-    // 3. Crear el documento con los datos. Si falla, se borra el contenido para no dejar huerfanos.
+    //Crear el documento con los datos. Si falla, se borra el contenido para no dejar huerfanos.
     let creado;
     try {
       creado = await this.archivosRepository.crear({
@@ -69,7 +71,6 @@ export class ArchivosService {
       throw error;
     }
 
-    // 4. Actualizar el espacio usado y registrar en el historial
     await this.usuariosService.ajustarAlmacenamiento(actual.id, creado.tamano);
     await this.actividadesService.registrar({
       usuario: actual.id,
@@ -88,34 +89,64 @@ export class ArchivosService {
     const hayFiltros = Boolean(
       criterios.q || criterios.tipo || criterios.etiqueta || criterios.desde || criterios.hasta,
     );
+
+    let propietario = actual.id;
+    let nivelBase: NivelAcceso = 'PROPIETARIO';
     let carpeta: string | null | undefined;
+
     if (criterios.carpeta) {
-      await this.carpetaService.buscarActivaDelUsuario(criterios.carpeta, actual.id);
+      const acceso = await this.accesoService.exigirCarpeta(
+        actual.id,
+        criterios.carpeta,
+        NivelPermiso.LECTURA,
+      );
+      propietario = acceso.propietarioId;
+      nivelBase = acceso.nivel;
       carpeta = criterios.carpeta;
     } else {
       carpeta = hayFiltros ? undefined : null;
     }
 
     const { datos, total } = await this.archivosRepository.buscar(
-      { ...criterios, propietario: actual.id, carpeta },
+      { ...criterios, propietario, carpeta },
       { campo: orden, sentido },
       pagina,
       limite,
     );
-    return { datos, total, pagina, limite };
+
+    const directos =
+      nivelBase === 'PROPIETARIO'
+        ? new Map<string, NivelPermiso>()
+        : await this.accesoService.nivelesDirectos(actual.id, datos.map((a) => a._id));
+
+    return {
+      datos: datos.map((a) =>
+        this.conNivel(a, this.accesoService.mayor(nivelBase, directos.get(a.id))),
+      ),
+      total,
+      pagina,
+      limite,
+    };
   }
 
-  obtener(id: string, actual: UsuarioAutenticado) {
-    return this.obtenerActivo(id, actual.id);
+  async obtener(id: string, actual: UsuarioAutenticado) {
+    const acceso = await this.accesoService.exigirArchivo(actual.id, id, NivelPermiso.LECTURA);
+    const archivo = await this.archivosRepository.buscarActivoPorId(id);
+    if (!archivo) throw new NotFoundException('Archivo no encontrado');
+    return this.conNivel(archivo, acceso.nivel);
   }
 
   async abrirContenido(id: string, actual: UsuarioAutenticado, descargar: boolean) {
-    const archivo = await this.obtenerActivo(id, actual.id);
+    const acceso = await this.accesoService.exigirArchivo(actual.id, id, NivelPermiso.LECTURA);
+    const archivo = await this.archivosRepository.buscarActivoPorId(id);
+    if (!archivo) throw new NotFoundException('Archivo no encontrado');
+
     const flujo = this.contenidosRepository.abrirLectura(archivo.contenidoId.toString());
 
     if (descargar) {
       await this.actividadesService.registrar({
         usuario: actual.id,
+        propietarioRecurso: acceso.propietarioId, // el dueño vera quien descargo su archivo
         accion: AccionActividad.DESCARGAR,
         tipoRecurso: TipoRecurso.ARCHIVO,
         recurso: archivo.id,
@@ -130,7 +161,9 @@ export class ArchivosService {
     if (dto.nombre === undefined && dto.etiquetas === undefined) {
       throw new BadRequestException('Envía un nombre o etiquetas para actualizar');
     }
-    const archivo = await this.obtenerActivo(id, actual.id);
+    const acceso = await this.accesoService.exigirArchivo(actual.id, id, NivelPermiso.EDICION);
+    const archivo = await this.archivosRepository.buscarActivoPorId(id);
+    if (!archivo) throw new NotFoundException('Archivo no encontrado');
 
     const cambios: { nombre?: string; tipo?: TipoArchivo; etiquetas?: string[] } = {};
     if (dto.nombre !== undefined && dto.nombre !== archivo.nombre) {
@@ -140,7 +173,7 @@ export class ArchivosService {
     if (dto.etiquetas !== undefined) {
       cambios.etiquetas = this.normalizarEtiquetas(dto.etiquetas);
     }
-    if (Object.keys(cambios).length === 0) return archivo;
+    if (Object.keys(cambios).length === 0) return this.conNivel(archivo, acceso.nivel);
 
     const actualizado = await this.conNombreUnico(() =>
       this.archivosRepository.actualizar(archivo.id, cambios),
@@ -150,6 +183,7 @@ export class ArchivosService {
     if (cambios.nombre) {
       await this.actividadesService.registrar({
         usuario: actual.id,
+        propietarioRecurso: acceso.propietarioId,
         accion: AccionActividad.RENOMBRAR,
         tipoRecurso: TipoRecurso.ARCHIVO,
         recurso: archivo.id,
@@ -157,7 +191,7 @@ export class ArchivosService {
         detalles: { anterior: archivo.nombre, nuevo: cambios.nombre },
       });
     }
-    return actualizado;
+    return this.conNivel(actualizado, acceso.nivel);
   }
 
   async mover(id: string, dto: MoverArchivoDto, actual: UsuarioAutenticado) {
@@ -188,10 +222,15 @@ export class ArchivosService {
     return movido;
   }
 
-  private async obtenerActivo(id: string, propietario: string) {
-    const archivo = await this.archivosRepository.buscarActivo(id, propietario);
-    if (!archivo) throw new NotFoundException('Archivo no encontrado');
-    return archivo;
+  private async obtenerActivo(id: string, usuarioId: string) {
+    const archivo = await this.archivosRepository.buscarActivo(id, usuarioId);
+    if (archivo) return archivo;
+    await this.accesoService.exigirArchivo(usuarioId, id, 'PROPIETARIO');
+    throw new NotFoundException('Archivo no encontrado');
+  }
+
+  private conNivel(archivo: ArchivoDocument, nivel: NivelAcceso) {
+    return { ...archivo.toJSON(), nivel };
   }
 
   private nombreDesdeSubida(originalname: string): string {
@@ -228,7 +267,6 @@ export class ArchivosService {
     return etiquetas;
   }
 
-  // Traduce el error del indice unico de Mongo (código 11000) a un 409
   private async conNombreUnico<T>(operacion: () => Promise<T>): Promise<T> {
     try {
       return await operacion();

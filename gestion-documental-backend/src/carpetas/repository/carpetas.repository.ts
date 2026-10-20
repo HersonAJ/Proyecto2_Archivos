@@ -209,4 +209,8 @@ export class CarpetasRepository {
     const resultado = await this.modelo.deleteMany({ _id: { $in: ids } }).exec();
     return resultado.deletedCount;
   }
+
+  buscarActivaPorId(id: string) {
+    return this.modelo.findOne({ _id: id, enPapelera: false }).exec();
+  }
 }
