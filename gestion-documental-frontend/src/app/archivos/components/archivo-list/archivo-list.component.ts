@@ -20,6 +20,9 @@ import { ArchivoFormComponent, DatosArchivoForm } from '../archivo-form/archivo-
 import { UsuariosService } from '../../../usuarios/services/usuarios.service';
 import { PapeleraService } from '../../../papelera/service/papelera.service';
 import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
+import { CompartirDialogComponent } from '../../../comparticiones/components/compartir-dialog/compartir-dialog.component';
+import { etiquetaNivel, tieneNivel } from '../../../comparticiones/models/comparticion.model';
+import { guardarBlob } from '../../../core/utils/descarga';
 
 @Component({
   selector: 'app-archivo-list',
@@ -50,6 +53,7 @@ export class ArchivoListComponent {
   protected readonly pagina = signal(1);
   protected readonly limite = signal(20);
   private readonly recarga = new BehaviorSubject<void>(undefined);
+  protected readonly etiquetaNivel = etiquetaNivel;
 
   constructor() {
     toObservable(this.carpetaId)
@@ -123,14 +127,8 @@ export class ArchivoListComponent {
   protected descargarArchivo(archivo: Archivo) {
     this.archivosService.obtenerContenido(archivo._id, true).subscribe({
       next: ({ blob, nombreArchivo }) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = nombreArchivo ?? archivo.nombre;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+
+          guardarBlob(blob, nombreArchivo ?? archivo.nombre);
 
         this.snackBar.open('Archivo descargado con éxito', 'Cerrar', { duration: 3000 });
       },
@@ -171,6 +169,17 @@ export class ArchivoListComponent {
       },
       error: (e: unknown) =>
         this.snackBar.open(mensajeDeError(e, 'No se pudo restaurar'), 'Cerrar', { duration: 4000 }),
+    });
+  }
+
+  protected esMio(archivo: Archivo): boolean {
+    return tieneNivel(archivo.nivel, 'PROPIETARIO');
+  }
+
+  protected compartir(archivo: Archivo) {
+    this.dialog.open(CompartirDialogComponent, {
+      width: '560px',
+      data: { tipoRecurso: 'ARCHIVO', recurso: archivo._id, nombre: archivo.nombre },
     });
   }
 }

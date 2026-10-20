@@ -1,20 +1,43 @@
 <main class="contenido">
   <header class="cabecera">
-    <h1 class="titulo-pagina">Mis documentos</h1>
-    <div class="acciones">
-      <button mat-stroked-button (click)="nuevaCarpeta()" [disabled]="error() !== null">
-        <mat-icon>create_new_folder</mat-icon>
-        Nueva carpeta
-      </button>
-      <button mat-flat-button (click)="subirArchivo()" [disabled]="error() !== null">
-        <mat-icon>upload_file</mat-icon>
-        Subir archivo
-      </button>
+    <div>
+      @if (esPropietario()) {
+        <h1 class="titulo-pagina">Mis documentos</h1>
+      } @else {
+        <h1 class="titulo-pagina">{{ actual()?.nombre }}</h1>
+        <p class="subtitulo-pagina">
+          Compartida por {{ propietario()?.nombre }} · Permiso: {{ etiquetaNivel(nivelActual()) }}
+        </p>
+      }
     </div>
+
+    <!-- Solo el propietario puede compartir, crear carpetas y subir archivos -->
+    @if (esPropietario()) {
+      <div class="acciones">
+        @if (actual()) {
+          <button mat-stroked-button (click)="compartirActual()">
+            <mat-icon>share</mat-icon>
+            Compartir
+          </button>
+        }
+        <button mat-stroked-button (click)="nuevaCarpeta()" [disabled]="error() !== null">
+          <mat-icon>create_new_folder</mat-icon>
+          Nueva carpeta
+        </button>
+        <button mat-flat-button (click)="subirArchivo()" [disabled]="error() !== null">
+          <mat-icon>upload_file</mat-icon>
+          Subir archivo
+        </button>
+      </div>
+    }
   </header>
 
   <nav class="migas" aria-label="Ruta de la carpeta">
-    <a routerLink="/carpetas">Mis documentos</a>
+    @if (esPropietario()) {
+      <a routerLink="/carpetas">Mis documentos</a>
+    } @else {
+      <a routerLink="/compartidos">Compartidos</a>
+    }
     @for (paso of ruta(); track paso._id) {
       <mat-icon>chevron_right</mat-icon>
       <a [routerLink]="['/carpetas', paso._id]">{{ paso.nombre }}</a>
@@ -40,10 +63,21 @@
           <mat-list-item>
             <mat-icon matListItemIcon>folder</mat-icon>
             <a matListItemTitle class="enlace" [routerLink]="['/carpetas', c._id]">{{ c.nombre }}</a>
-            <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones de la carpeta">
-              <mat-icon>more_vert</mat-icon>
-            </button>
+            @if (!esMia(c)) {
+              <div matListItemLine class="meta-carpeta">Permiso: {{ etiquetaNivel(c.nivel ?? 'LECTURA') }}</div>
+            }
+
+            <!-- Las acciones sobre carpetas son solo del propietario -->
+            @if (esMia(c)) {
+              <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones de la carpeta">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+            }
             <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="compartir(c)">
+                <mat-icon>share</mat-icon>
+                <span>Compartir</span>
+              </button>
               <button mat-menu-item (click)="renombrar(c)">
                 <mat-icon>edit</mat-icon>
                 <span>Renombrar</span>

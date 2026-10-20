@@ -18,3 +18,9 @@ export interface CrearUsuario {
 }
 
 export type ActualizarUsuario = Partial<CrearUsuario>;
+
+export interface  UsuarioResumen {
+  _id: string;
+  nombre: string;
+  correo: string;
+}

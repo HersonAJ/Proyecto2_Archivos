@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,23 +6,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BehaviorSubject, catchError, combineLatest, forkJoin, of, switchMap } from 'rxjs';
 import { ArchivoListComponent } from '../../../archivos/components/archivo-list/archivo-list.component';
+import { CompartirDialogComponent } from '../../../comparticiones/components/compartir-dialog/compartir-dialog.component';
+import { NivelAcceso, etiquetaNivel, tieneNivel } from '../../../comparticiones/models/comparticion.model';
 import { mensajeDeError } from '../../../core/utils/mensaje-error';
+import { PapeleraService } from '../../../papelera/service/papelera.service';
+import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
+import { UsuarioResumen } from '../../../usuarios/models/usuario.model';
 import { Carpeta, RutaCarpeta } from '../../models/carpetas.model';
 import { CarpetasService } from '../../service/carpetas.service';
 import { CarpetaFormComponent, DatosCarpetaForm } from '../carpeta-form/carpeta-form.component';
 import { CarpetaMoverComponent } from '../carpeta-mover/carpeta-mover.component';
-import { PapeleraService } from '../../../papelera/service/papelera.service';
-import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
 
 @Component({
   selector: 'app-carpeta-list',
   imports: [
     RouterLink,
-    MatToolbarModule,
     MatButtonModule,
     MatIconModule,
     MatListModule,
@@ -44,9 +45,14 @@ export class CarpetaListComponent {
 
   protected readonly carpetas = signal<Carpeta[]>([]);
   protected readonly ruta = signal<RutaCarpeta[]>([]);
-  protected readonly actual = signal<Carpeta | null>(null); // null = estamos en la raíz
+  protected readonly actual = signal<Carpeta | null>(null);
+  protected readonly propietario = signal<UsuarioResumen | null>(null);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly nivelActual = computed<NivelAcceso>(() => this.actual()?.nivel ?? 'PROPIETARIO');
+  protected readonly esPropietario = computed(() => this.nivelActual() === 'PROPIETARIO');
+  protected readonly etiquetaNivel = etiquetaNivel;
 
   private readonly recarga = new BehaviorSubject<void>(undefined);
 
@@ -75,7 +81,12 @@ export class CarpetaListComponent {
         this.carpetas.set(resultado?.carpetas ?? []);
         this.ruta.set(resultado?.detalle?.ruta ?? []);
         this.actual.set(resultado?.detalle?.carpeta ?? null);
+        this.propietario.set(resultado?.detalle?.propietario ?? null);
       });
+  }
+
+  protected esMia(carpeta: Carpeta): boolean {
+    return tieneNivel(carpeta.nivel, 'PROPIETARIO');
   }
 
   protected subirArchivo() {
@@ -114,6 +125,18 @@ export class CarpetaListComponent {
       .subscribe((movida) => {
         if (movida) this.terminar('Carpeta movida');
       });
+  }
+
+  protected compartir(carpeta: Carpeta) {
+    this.dialog.open(CompartirDialogComponent, {
+      width: '560px',
+      data: { tipoRecurso: 'CARPETA', recurso: carpeta._id, nombre: carpeta.nombre },
+    });
+  }
+
+  protected compartirActual() {
+    const carpeta = this.actual();
+    if (carpeta) this.compartir(carpeta);
   }
 
   protected eliminar(carpeta: Carpeta) {

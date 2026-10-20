@@ -30,6 +30,12 @@ export class UsuariosController {
     return this.usuariosService.update(actual.id, dto);
   }
 
+  @Get('buscar')
+  @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
+  buscar(@Query() filtros: BuscarUsuariosDto, @UsuarioActual() actual: UsuarioAutenticado) {
+    return this.usuariosService.buscarEnDirectorio(filtros.q, actual);
+  }
+
   @Post()
   create(@Body() dto: CreateUsuarioDto) {
     return this.usuariosService.create(dto);
@@ -67,9 +73,4 @@ export class UsuariosController {
     return this.usuariosService.activar(id);
   }
 
-  @Get('buscar')
-  @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
-  buscar(@Query() filtros: BuscarUsuariosDto, @UsuarioActual() actual: UsuarioAutenticado) {
-    return this.usuariosService.buscarEnDirectorio(filtros.q, actual);
-  }
 }

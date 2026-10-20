@@ -6,10 +6,11 @@ import { CarpetaService } from "./carpeta.service";
 import { Carpeta, CarpetaSchema } from "./entities/carpeta.entity";
 import { CarpetasRepository } from "./repository/carpetas.repository";
 import { AccesoModule } from "../acceso/acceso.module";
+import { UsuariosModule } from "../usuarios/usuarios.module";
 
 @Module({
     imports: [MongooseModule.forFeature([{ name: Carpeta.name, schema: CarpetaSchema }]),
-        ActividadesModule, AccesoModule,
+        ActividadesModule, AccesoModule, UsuariosModule,
     ],
     controllers: [CarpetasController],
     providers: [CarpetaService, CarpetasRepository],

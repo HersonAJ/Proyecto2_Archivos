@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>Compartir «{{ datos.nombre }}»</h2>
+
+<mat-dialog-content class="contenido">
+  <div class="fila-agregar">
+    <mat-form-field appearance="outline" class="campo-persona">
+      <mat-label>Agregar persona (nombre o correo)</mat-label>
+      <input matInput [formControl]="buscar" [matAutocomplete]="auto" autocomplete="off" cdkFocusInitial />
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="mostrarUsuario">
+        @for (usuario of sugerencias(); track usuario._id) {
+          <mat-option [value]="usuario">
+            <span class="sugerencia-nombre">{{ usuario.nombre }}</span>
+            <span class="sugerencia-correo">{{ usuario.correo }}</span>
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo-nivel">
+      <mat-label>Permiso</mat-label>
+      <mat-select [formControl]="nivelNuevo">
+        @for (nivel of niveles; track nivel.valor) {
+          <mat-option [value]="nivel.valor">{{ nivel.etiqueta }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button type="button" class="boton-agregar" [disabled]="enviando()" (click)="compartir()">
+      Compartir
+    </button>
+  </div>
+
+  <p class="ayuda">{{ descripcionNuevo() }}</p>
+  @if (datos.tipoRecurso === 'CARPETA') {
+    <p class="ayuda">Compartir una carpeta da acceso a todo lo que contiene, hoy y en el futuro.</p>
+  }
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <h3 class="subtitulo">Personas con acceso</h3>
+  @if (cargando()) {
+    <p class="aviso">Cargando…</p>
+  } @else if (personas().length === 0) {
+    <p class="aviso">Aún no lo compartes con nadie.</p>
+  } @else {
+    <ul class="personas">
+      @for (persona of personas(); track persona._id) {
+        <li class="persona">
+          <span class="avatar">{{ persona.destinatario.nombre.charAt(0).toUpperCase() }}</span>
+          <div class="datos">
+            <span class="nombre">{{ persona.destinatario.nombre }}</span>
+            <span class="correo">{{ persona.destinatario.correo }}</span>
+          </div>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-compacto">
+            <mat-select [value]="persona.nivel" aria-label="Permiso"
+                        (selectionChange)="cambiarNivel(persona, $event.value)">
+              @for (nivel of niveles; track nivel.valor) {
+                <mat-option [value]="nivel.valor">{{ nivel.etiqueta }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" matTooltip="Quitar acceso"
+                  aria-label="Quitar acceso" (click)="retirar(persona)">
+            <mat-icon>person_remove</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

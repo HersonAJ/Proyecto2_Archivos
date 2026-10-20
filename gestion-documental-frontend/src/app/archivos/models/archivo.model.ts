@@ -1,3 +1,5 @@
+import { NivelAcceso } from "../../comparticiones/models/comparticion.model";
+
 export enum TipoArchivo {
   TXT = 'txt',
   MD = 'md'
@@ -28,6 +30,7 @@ export interface Archivo {
   eliminadoPorCascada: boolean;
   createdAt: string;
   updatedAt: string;
+  nivel?: NivelAcceso;
 }
 
 export interface ListarArchivosResponse {

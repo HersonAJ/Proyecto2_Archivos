@@ -24,6 +24,9 @@
             @if (archivo.etiquetas.length > 0) {
               <span class="etiquetas"> • {{ archivo.etiquetas.join(', ') }}</span>
             }
+            @if (!esMio(archivo)) {
+              <span class="etiquetas"> • Permiso: {{ etiquetaNivel(archivo.nivel ?? 'LECTURA') }}</span>
+            }
           </div>
 
           <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones del archivo">
@@ -35,10 +38,16 @@
               <mat-icon>download</mat-icon>
               <span>Descargar</span>
             </button>
-            <button mat-menu-item (click)="eliminar(archivo)">
-              <mat-icon>delete</mat-icon>
-              <span>Eliminar</span>
-            </button>
+            @if (esMio(archivo)) {
+              <button mat-menu-item (click)="compartir(archivo)">
+                <mat-icon>share</mat-icon>
+                <span>Compartir</span>
+              </button>
+              <button mat-menu-item (click)="eliminar(archivo)">
+                <mat-icon>delete</mat-icon>
+                <span>Eliminar</span>
+              </button>
+            }
           </mat-menu>
         </mat-list-item>
       }

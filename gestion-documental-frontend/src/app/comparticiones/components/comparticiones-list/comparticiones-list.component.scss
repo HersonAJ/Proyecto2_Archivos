@@ -1,0 +1,102 @@
+.contenido {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.cabecera {
+  margin-bottom: 8px;
+}
+
+.titulo-pagina {
+  font: var(--mat-sys-headline-small);
+  margin: 0;
+}
+
+.tab-contenido {
+  padding-top: 16px;
+}
+
+.centrado {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.vacio {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 8px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  th {
+    font: var(--mat-sys-label-large);
+    color: var(--mat-sys-on-surface-variant);
+    background: var(--mat-sys-surface-container);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.columna-acciones {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.celda-nombre {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.enlace {
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.correo {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.campo-compacto {
+  width: 140px;
+}
+
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}

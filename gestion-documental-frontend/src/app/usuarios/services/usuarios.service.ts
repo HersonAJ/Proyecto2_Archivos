@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { ApiService } from '../../core/service/api.service';
-import { Usuario, ActualizarUsuario, CrearUsuario } from '../models/usuario.model';
+import { Usuario, ActualizarUsuario, CrearUsuario, UsuarioResumen } from '../models/usuario.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService extends ApiService {
@@ -37,5 +37,11 @@ export class UsuariosService extends ApiService {
 
   desactivar(id: string) {
     return this.http.patch<Usuario>(`${this.baseUrl}/usuarios/${id}/desactivar`, {});
+  }
+
+  buscarEnDirectorio(texto: string) {
+    return this.http.get<UsuarioResumen[]>(`${this.baseUrl}/usuarios/buscar`, {
+      params: { q: texto },
+    });
   }
 }

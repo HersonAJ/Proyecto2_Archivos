@@ -11,6 +11,8 @@ import { MoverCarpetaDto } from './dto/mover-carpeta.dto';
 import { RenombrarCarpetaDto } from './dto/renombrar-carpeta.dto';
 import { CarpetaDocument } from './entities/carpeta.entity';
 import { CarpetasRepository } from './repository/carpetas.repository';
+import { UsuariosService } from '../usuarios/usuarios.service';
+import { getTextOfJSDocComment } from 'typescript';
 
 @Injectable()
 export class CarpetaService {
@@ -18,6 +20,7 @@ export class CarpetaService {
         private readonly carpetasRepository: CarpetasRepository,
         private readonly actividadesService: ActividadesService,
         private readonly accesoService: AccesoService,
+        private readonly usuariosService: UsuariosService,
     ) { }
 
     async crear(dto: CreateCarpetaDto, actual: UsuarioAutenticado) {
@@ -79,7 +82,12 @@ export class CarpetaService {
             _id: ancestro.toString(),
             nombre: nombrePorId.get(ancestro.toString()) ?? '',
         }));
-        return { carpeta: this.conNivel(carpeta, acceso.nivel), ruta };
+        let propietario: { _id: string; nombre: string; correo: string } |null = null;
+        if (acceso.nivel !== 'PROPIETARIO') {
+            const dueno = await this.usuariosService.findOne(acceso.propietarioId);
+            propietario = { _id: dueno.id, nombre: dueno.nombre, correo: dueno.correo };
+        }
+        return { carpeta: this.conNivel(carpeta, acceso.nivel), ruta, propietario };
     }
 
     async renombrar(id: string, dto: RenombrarCarpetaDto, actual: UsuarioAutenticado) {

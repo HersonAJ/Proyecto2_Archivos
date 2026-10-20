@@ -1,0 +1,131 @@
+<div class="contenido">
+  <header class="cabecera">
+    <h1 class="titulo-pagina">Compartidos</h1>
+  </header>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <mat-tab-group animationDuration="0ms">
+      <mat-tab label="Compartidos conmigo">
+        <div class="tab-contenido">
+          @if (recibidas().length === 0) {
+            <p class="vacio">Nadie ha compartido nada contigo todavía.</p>
+          } @else {
+            <div class="tabla-contenedor">
+              <table class="tabla">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Compartido por</th>
+                    <th>Permiso</th>
+                    <th>Fecha</th>
+                    <th class="columna-acciones"><span class="solo-lector">Acciones</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (elemento of recibidas(); track elemento._id) {
+                    <tr>
+                      <td>
+                        <div class="celda-nombre">
+                          <mat-icon>{{ icono(elemento) }}</mat-icon>
+                          @if (elemento.tipoRecurso === 'CARPETA') {
+                            <a class="enlace" [routerLink]="['/carpetas', elemento.recurso._id]">{{ elemento.recurso.nombre }}</a>
+                          } @else {
+                            <span>{{ elemento.recurso.nombre }}</span>
+                          }
+                        </div>
+                      </td>
+                      <td>
+                        <div>{{ elemento.propietario?.nombre }}</div>
+                        <div class="correo">{{ elemento.propietario?.correo }}</div>
+                      </td>
+                      <td>{{ etiquetaNivel(elemento.nivel) }}</td>
+                      <td>{{ elemento.compartidoEn | date: 'dd/MM/yyyy' }}</td>
+                      <td class="columna-acciones">
+                        @if (elemento.tipoRecurso === 'CARPETA') {
+                          <a mat-icon-button matTooltip="Abrir" aria-label="Abrir carpeta"
+                             [routerLink]="['/carpetas', elemento.recurso._id]">
+                            <mat-icon>folder_open</mat-icon>
+                          </a>
+                        } @else {
+                          <button mat-icon-button matTooltip="Descargar" aria-label="Descargar"
+                                  (click)="descargar(elemento)">
+                            <mat-icon>download</mat-icon>
+                          </button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Compartidos por mí">
+        <div class="tab-contenido">
+          @if (otorgadas().length === 0) {
+            <p class="vacio">Aún no has compartido nada. Usa la opción «Compartir» del menú de una carpeta o un archivo.</p>
+          } @else {
+            <div class="tabla-contenedor">
+              <table class="tabla">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Compartido con</th>
+                    <th>Permiso</th>
+                    <th>Fecha</th>
+                    <th class="columna-acciones"><span class="solo-lector">Acciones</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (elemento of otorgadas(); track elemento._id) {
+                    <tr>
+                      <td>
+                        <div class="celda-nombre">
+                          <mat-icon>{{ icono(elemento) }}</mat-icon>
+                          @if (elemento.tipoRecurso === 'CARPETA') {
+                            <a class="enlace" [routerLink]="['/carpetas', elemento.recurso._id]">{{ elemento.recurso.nombre }}</a>
+                          } @else {
+                            <span>{{ elemento.recurso.nombre }}</span>
+                          }
+                        </div>
+                      </td>
+                      <td>
+                        <div>{{ elemento.destinatario?.nombre }}</div>
+                        <div class="correo">{{ elemento.destinatario?.correo }}</div>
+                      </td>
+                      <td>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-compacto">
+                          <mat-select [value]="elemento.nivel" [disabled]="procesando()" aria-label="Permiso"
+                                      (selectionChange)="cambiarNivel(elemento, $event.value)">
+                            @for (nivel of niveles; track nivel.valor) {
+                              <mat-option [value]="nivel.valor">{{ nivel.etiqueta }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                      <td>{{ elemento.compartidoEn | date: 'dd/MM/yyyy' }}</td>
+                      <td class="columna-acciones">
+                        <button mat-icon-button matTooltip="Quitar acceso" aria-label="Quitar acceso"
+                                [disabled]="procesando()" (click)="retirar(elemento)">
+                          <mat-icon>person_remove</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>
