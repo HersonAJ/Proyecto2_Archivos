@@ -10,6 +10,7 @@ import { CarpetasModule } from './carpetas/carpetas.module';
 import { ArchivosModule } from './archivos/archivos.module';
 import { PapeleraModule } from './papelera/papelera.module';
 import { ComparticionesModule } from './comparticiones/comparticiones.module';
+import { ComentariosModule } from './comentarios/comentarios.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { ComparticionesModule } from './comparticiones/comparticiones.module';
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
-    UsuariosModule, AutenticacionModule, ActividadesModule, CarpetasModule, ArchivosModule, PapeleraModule, ComparticionesModule
+    UsuariosModule, AutenticacionModule, ActividadesModule, CarpetasModule, ArchivosModule, PapeleraModule, ComparticionesModule,
+    ComentariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

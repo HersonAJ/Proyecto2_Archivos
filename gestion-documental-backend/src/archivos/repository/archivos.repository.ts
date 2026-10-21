@@ -164,4 +164,14 @@ export class ArchivosRepository {
     buscarActivoPorId(id: string) {
         return this.modelo.findOne({ _id: id, enPapelera: false }).exec();
     }
+
+    reemplazarContenido(id: string, version: Date, datos: { contenidoId: string; tamano: number }) {
+        return this.modelo
+            .findOneAndUpdate(
+                { _id: id, enPapelera: false, updatedAt: version },
+                { $set: { contenidoId: datos.contenidoId, tamano: datos.tamano } },
+                { returnDocument: 'after' },
+            )
+            .exec();
+    }
 }

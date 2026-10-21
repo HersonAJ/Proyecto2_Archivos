@@ -11,16 +11,24 @@ export class ContenidosRepository {
 
     constructor(@InjectConnection() conexion: Connection) {
         if (!conexion.db) {
-            throw new Error ('La conexion a MongoDB no esta lista');
+            throw new Error('La conexion a MongoDB no esta lista');
         }
 
-        this.bucket = new mongo.GridFSBucket(conexion.db, { bucketName: 'contenidos'});
+        this.bucket = new mongo.GridFSBucket(conexion.db, { bucketName: 'contenidos' });
     }
 
     //guarda el contenido y devuelve su id
     async guardar(contenido: Buffer, nombre: string): Promise<string> {
         const subida = this.bucket.openUploadStream(nombre);
-        await pipeline(Readable.from(contenido), subida);
+        if (contenido.length === 0) {
+            await new Promise<void>((resolver, rechazar) => {
+                subida.on('finish', () => resolver());
+                subida.on('error', rechazar);
+                subida.end();
+            });
+        } else {
+            await pipeline(Readable.from(contenido), subida);
+        }
         return subida.id.toString();
     }
 

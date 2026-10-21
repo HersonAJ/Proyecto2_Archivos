@@ -12,6 +12,7 @@ import { nombreAlternativo } from '../common/utils/nombres.util';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ComparticionesRepository } from '../comparticiones/repository/comparticiones.repository';
 import { AccesoService } from '../acceso/acceso.service';
+import { ComentariosRepository } from '../comentarios/repository/comentarios.repository';
 
 const LIMITE_LISTA = 500; // tope de elementos que devuelve la lista de la papelera
 const NO_EN_PAPELERA = 'El elemento no esta en la papelera';
@@ -29,6 +30,7 @@ export class PapeleraService {
         private readonly actividadesService: ActividadesService,
         private readonly comparticionesRepository: ComparticionesRepository,
         private readonly accesoService: AccesoService,
+        private readonly comentariosRepository: ComentariosRepository,
     ) { }
 
     async listar(actual: UsuarioAutenticado) {
@@ -180,6 +182,7 @@ export class PapeleraService {
         const eliminados = await this.archivosRepository.eliminarUnoEnPapelera(archivo.id);
         if (eliminados === 0) throw new NotFoundException(NO_EN_PAPELERA);
         await this.comparticionesRepository.eliminarPorRecursos([archivo._id]);
+        await this.comentariosRepository.eliminarPorArchivos([archivo._id]);
         await this.eliminarContenidos([archivo.contenidoId.toString()]);
         await this.usuariosService.ajustarAlmacenamiento(actual.id, -archivo.tamano);
 
@@ -204,6 +207,7 @@ export class PapeleraService {
       ...idsCarpetas,
       ...archivos.map((a) => a._id),
     ]);
+        await this.comentariosRepository.eliminarPorArchivos(archivos.map((a) => a._id));
         await this.eliminarContenidos(archivos.map((a) => a.contenidoId.toString()));
         if (bytes > 0) await this.usuariosService.ajustarAlmacenamiento(actual.id, -bytes);
 
@@ -231,6 +235,7 @@ export class PapeleraService {
       ...idsCarpetas,
       ...archivos.map((a) => a._id),
     ]);
+            await this.comentariosRepository.eliminarPorArchivos(archivos.map((a) => a._id));
         await this.eliminarContenidos(archivos.map((a) => a.contenidoId.toString()));
         if (bytes > 0) await this.usuariosService.ajustarAlmacenamiento(actual.id, -bytes);
 

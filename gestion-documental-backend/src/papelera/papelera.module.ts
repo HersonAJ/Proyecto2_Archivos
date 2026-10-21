@@ -7,9 +7,10 @@ import { PapeleraController } from './papelera.controller';
 import { PapeleraService } from './papelera.service';
 import { ComparticionesModule } from '../comparticiones/comparticiones.module';
 import { AccesoModule } from '../acceso/acceso.module';
+import { ComentariosModule } from '../comentarios/comentarios.module';
 
 @Module({
-  imports: [ArchivosModule, CarpetasModule, UsuariosModule, ActividadesModule, ComparticionesModule, AccesoModule],
+  imports: [ArchivosModule, CarpetasModule, UsuariosModule, ActividadesModule, ComparticionesModule, AccesoModule, ComentariosModule],
   controllers: [PapeleraController],
   providers: [PapeleraService],
 })

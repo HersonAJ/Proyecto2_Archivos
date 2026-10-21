@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { isUtf8 } from 'node:buffer';
 import { basename, extname } from 'node:path';
 import { AccesoService } from '../acceso/acceso.service';
@@ -18,6 +18,7 @@ import { SubirArchivoDto } from './dto/subir-archivo.dto';
 import { ArchivoDocument } from './entities/archivo.entity';
 import { ArchivosRepository } from './repository/archivos.repository';
 import { ContenidosRepository } from './repository/contenidos.repository';
+import { EditarContenidoDto } from './dto/editar-contenido.dto';
 
 const TIPOS_POR_EXTENSION: Record<string, TipoArchivo | undefined> = {
   '.txt': TipoArchivo.TXT,
@@ -33,7 +34,10 @@ export class ArchivosService {
     private readonly usuariosService: UsuariosService,
     private readonly actividadesService: ActividadesService,
     private readonly accesoService: AccesoService,
-  ) {}
+  ) { }
+
+
+  private readonly logger = new Logger(ArchivosService.name);
 
   async subir(
     archivo: Express.Multer.File | undefined,
@@ -280,5 +284,66 @@ export class ArchivosService {
     if (esClaveDuplicada(error)) {
       throw new ConflictException('Ya existe un archivo con ese nombre en esta ubicación');
     }
+  }
+
+    // Reemplaza el contenido completo. Requiere permiso de edición (o ser el propietario).
+  async editarContenido(
+    id: string,
+    archivo: Express.Multer.File | undefined,
+    dto: EditarContenidoDto,
+    actual: UsuarioAutenticado,
+  ) {
+    const acceso = await this.accesoService.exigirArchivo(actual.id, id, NivelPermiso.EDICION);
+    if (!archivo) {
+      throw new BadRequestException('Debes enviar el contenido en el campo "archivo"');
+    }
+    this.validarTexto(archivo.buffer);
+
+    const anterior = await this.archivosRepository.buscarActivoPorId(id);
+    if (!anterior) throw new NotFoundException('Archivo no encontrado');
+
+    // 1. Guardar el contenido nuevo
+    const nuevoContenidoId = await this.contenidosRepository.guardar(archivo.buffer, anterior.nombre);
+
+    // 2. Reemplazarlo solo si nadie cambió el archivo mientras tanto
+    let actualizado;
+    try {
+      actualizado = await this.archivosRepository.reemplazarContenido(id, dto.version, {
+        contenidoId: nuevoContenidoId,
+        tamano: archivo.size,
+      });
+    } catch (error) {
+      await this.contenidosRepository.eliminar(nuevoContenidoId).catch(() => undefined);
+      throw error;
+    }
+    if (!actualizado) {
+      // No se aplicó: se borra el contenido nuevo para no dejar huérfanos
+      await this.contenidosRepository.eliminar(nuevoContenidoId).catch(() => undefined);
+      throw new ConflictException(
+        'El archivo cambió mientras lo editabas. Recárgalo para ver la versión actual.',
+      );
+    }
+  
+        // 3. Borrar el contenido anterior. Si falla, queda un contenido sobrante que nadie ve.
+    await this.contenidosRepository.eliminar(anterior.contenidoId.toString()).catch((error: unknown) =>
+      this.logger.error(`No se pudo borrar el contenido anterior de ${anterior.nombre}`, String(error)),
+    );
+
+    // 4. El espacio es del PROPIETARIO, aunque edite otra persona
+    const diferencia = archivo.size - anterior.tamano;
+    if (diferencia !== 0) {
+      await this.usuariosService.ajustarAlmacenamiento(acceso.propietarioId, diferencia);
+    }
+
+    await this.actividadesService.registrar({
+      usuario: actual.id,
+      propietarioRecurso: acceso.propietarioId,
+      accion: AccionActividad.EDITAR,
+      tipoRecurso: TipoRecurso.ARCHIVO,
+      recurso: anterior.id,
+      nombreRecurso: anterior.nombre,
+      detalles: { tamanoAnterior: anterior.tamano, tamanoNuevo: archivo.size },
+    });
+    return this.conNivel(actualizado, acceso.nivel);
   }
 }

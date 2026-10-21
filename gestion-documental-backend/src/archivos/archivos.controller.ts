@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { UsuarioActual } from '../autenticacion/decorators/usuario-actual.decorator';
@@ -11,6 +11,7 @@ import { ContenidoArchivoDto } from './dto/contenido-archivo.dto';
 import { ListarArchivosDto } from './dto/listar-archivos.dto';
 import { MoverArchivoDto } from './dto/mover-archivo.dto';
 import { SubirArchivoDto } from './dto/subir-archivo.dto';
+import { EditarContenidoDto } from './dto/editar-contenido.dto';
 
 const TIPO_MIME: Record<TipoArchivo, string> = {
   [TipoArchivo.TXT]: 'text/plain',
@@ -19,7 +20,7 @@ const TIPO_MIME: Record<TipoArchivo, string> = {
 
 @Controller('archivos')
 export class ArchivosController {
-  constructor(private readonly archivosService: ArchivosService) {}
+  constructor(private readonly archivosService: ArchivosService) { }
 
   @Post()
   @UseInterceptors(FileInterceptor('archivo'))
@@ -81,5 +82,16 @@ export class ArchivosController {
     @UsuarioActual() actual: UsuarioAutenticado,
   ) {
     return this.archivosService.mover(id, dto, actual);
+  }
+
+  @Put(':id/contenido')
+  @UseInterceptors(FileInterceptor('archivo'))
+  editarContenido(
+    @Param('id', ParseObjectIdPipe1) id: string,
+    @UploadedFile() archivo: Express.Multer.File | undefined,
+    @Body() dto: EditarContenidoDto,
+    @UsuarioActual() actual: UsuarioAutenticado,
+  ) {
+    return this.archivosService.editarContenido(id, archivo, dto, actual);
   }
 }
