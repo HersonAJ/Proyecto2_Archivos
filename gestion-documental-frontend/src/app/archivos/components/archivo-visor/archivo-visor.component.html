@@ -1,0 +1,93 @@
+<div class="contenido">
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+    <button mat-stroked-button (click)="volver()">Volver</button>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (archivo(); as arch) {
+    <header class="cabecera">
+      <button mat-icon-button (click)="volver()" aria-label="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-icon class="icono-tipo" [class.md-file]="arch.tipo === 'md'">{{ icono(arch) }}</mat-icon>
+
+      <div class="titulo-bloque">
+        <h1 class="titulo-pagina">{{ arch.nombre }}</h1>
+        <p class="meta">
+          {{ arch.tamano | tamano }} · .{{ arch.tipo }} · Modificado {{ arch.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+          @if (arch.compartidoPor) {
+            · Compartido por {{ arch.compartidoPor.nombre }}
+          }
+          · Permiso: {{ etiquetaNivel(nivel()) }}
+        </p>
+        @if (arch.etiquetas.length > 0) {
+          <div class="etiquetas">
+            @for (etiqueta of arch.etiquetas; track etiqueta) {
+              <span class="insignia">{{ etiqueta }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="acciones">
+        <button mat-stroked-button (click)="descargar()">
+          <mat-icon>download</mat-icon>
+          Descargar
+        </button>
+        @if (esPropietario()) {
+          <button mat-stroked-button (click)="compartir()">
+            <mat-icon>share</mat-icon>
+            Compartir
+          </button>
+        }
+        @if (puedeEditar() && !demasiadoGrande()) {
+          @if (editando()) {
+            <button mat-button (click)="cancelar()" [disabled]="guardando()">Cancelar</button>
+            <button mat-flat-button (click)="guardar()" [disabled]="guardando() || !hayCambios()">
+              Guardar
+            </button>
+          } @else {
+            <button mat-flat-button (click)="editar()">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+          }
+        }
+      </div>
+    </header>
+
+    <div class="cuerpo">
+      <section class="documento">
+        @if (errorGuardado()) {
+          <div class="aviso-error" role="alert">
+            <span>{{ errorGuardado() }}</span>
+            @if (hayConflicto()) {
+              <button mat-button (click)="recargar()">Recargar versión actual</button>
+            }
+          </div>
+        }
+
+        @if (demasiadoGrande()) {
+          <p class="aviso">
+            Este archivo pesa {{ arch.tamano | tamano }} y es demasiado grande para abrirlo aquí
+            (máximo 1 MB). Descárgalo para verlo.
+          </p>
+        } @else if (editando()) {
+          <textarea class="editor" spellcheck="false" aria-label="Contenido del archivo"
+                    [value]="borrador()" [disabled]="guardando()"
+                    (input)="alEscribir($event)"></textarea>
+        } @else if (contenido() === '') {
+          <p class="aviso">El archivo está vacío.</p>
+        } @else {
+          <pre class="texto">{{ contenido() }}</pre>
+        }
+      </section>
+
+      <aside class="lateral">
+        <app-comentario-list [archivoId]="arch._id" [nivel]="nivel()" />
+      </aside>
+    </div>
+  }
+</div>

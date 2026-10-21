@@ -18,7 +18,7 @@
             {{ obtenerIconoTipo(archivo.tipo) }}
           </mat-icon>
 
-          <div matListItemTitle class="nombre-archivo">{{ archivo.nombre }}</div>
+          <a matListItemTitle class="nombre-archivo enlace" [routerLink]="['/archivos', archivo._id]">{{ archivo.nombre }}</a>
           <div matListItemLine class="meta-archivo">
             {{ archivo.tamano | tamano }} • {{ archivo.createdAt | date:'dd/MM/yyyy HH:mm' }}
             @if (archivo.etiquetas.length > 0) {

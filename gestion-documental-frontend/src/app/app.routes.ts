@@ -6,6 +6,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { PapeleraListComponent } from './papelera/components/papelera-list/papelera-list.component';
 import { UsuarioListComponent } from './usuarios/components/usuario-list/usuario-list.component';
 import { ComparticionListComponent } from './comparticiones/components/comparticiones-list/comparticiones-list.component';
+import { cambiosSinGuardarGuard } from './core/guards/cambios-sin-fuardar.guard';
+import { ArchivoVisorComponent } from './archivos/components/archivo-visor/archivo-visor.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
@@ -21,6 +23,7 @@ export const routes: Routes = [
       { path: 'carpetas/:id', component: CarpetaListComponent },
       { path: 'papelera', component: PapeleraListComponent },
       { path: 'compartidos', component: ComparticionListComponent },
+      { path: 'archivos/:id', component: ArchivoVisorComponent, canDeactivate: [cambiosSinGuardarGuard] },
 
 
       { path: 'usuarios', component: UsuarioListComponent, canActivate: [rolGuard(['ADMIN'])] },

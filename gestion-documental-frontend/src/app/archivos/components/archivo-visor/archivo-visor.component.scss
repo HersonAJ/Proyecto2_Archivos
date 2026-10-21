@@ -1,0 +1,134 @@
+.contenido {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.centrado {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.icono-tipo {
+  margin-top: 8px;
+}
+
+.md-file {
+  color: var(--mat-sys-tertiary);
+}
+
+.titulo-bloque {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.titulo-pagina {
+  font: var(--mat-sys-headline-small);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.insignia {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font: var(--mat-sys-label-small);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .cuerpo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.documento {
+  min-width: 0;
+}
+
+.texto,
+.editor {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-lowest);
+  color: var(--mat-sys-on-surface);
+  font-family: ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.editor {
+  min-height: 60vh;
+  resize: vertical;
+}
+
+.editor:focus {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: -1px;
+}
+
+.aviso {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.aviso-error {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}

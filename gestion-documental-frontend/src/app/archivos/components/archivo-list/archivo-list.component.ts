@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, map, of, switchMap, tap } from 'rxjs';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -33,7 +34,7 @@ import { guardarBlob } from '../../../core/utils/descarga';
     MatListModule,
     MatMenuModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule, RouterLink
   ],
   templateUrl: './archivo-list.component.html',
   styleUrl: './archivo-list.component.scss',
