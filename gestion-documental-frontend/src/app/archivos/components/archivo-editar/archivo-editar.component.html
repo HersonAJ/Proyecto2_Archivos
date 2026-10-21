@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Renombrar y etiquetas</h2>
+
+<form [formGroup]="formulario" (ngSubmit)="guardar()">
+  <mat-dialog-content class="contenido-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" maxlength="255" autocomplete="off" cdkFocusInitial />
+      @if (formulario.controls.nombre.hasError('required') || formulario.controls.nombre.hasError('pattern')) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      } @else if (formulario.controls.nombre.hasError('extension')) {
+        <mat-error>Debe terminar en .txt o .md</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Etiquetas</mat-label>
+      <input matInput formControlName="etiquetas" maxlength="400" autocomplete="off"
+             placeholder="ej: informe, 2026, borrador" />
+      <mat-hint>Separa las etiquetas con comas (máximo 10)</mat-hint>
+      @if (formulario.controls.etiquetas.hasError('demasiadas')) {
+        <mat-error>Máximo 10 etiquetas</mat-error>
+      } @else if (formulario.controls.etiquetas.hasError('largas')) {
+        <mat-error>Cada etiqueta puede tener hasta 30 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="enviando()">Guardar</button>
+  </mat-dialog-actions>
+</form>

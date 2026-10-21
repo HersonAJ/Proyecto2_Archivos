@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Mover "{{ datos.archivo.nombre }}"</h2>
+
+<mat-dialog-content>
+  <app-selector-carpeta [(ubicacion)]="destino" />
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Cancelar</button>
+  <button mat-flat-button type="button" [disabled]="!puedeMover() || enviando()" (click)="mover()">
+    Mover aquí
+  </button>
+</mat-dialog-actions>

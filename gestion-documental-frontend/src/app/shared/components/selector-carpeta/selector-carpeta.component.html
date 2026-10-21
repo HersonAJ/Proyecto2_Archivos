@@ -1,0 +1,25 @@
+<div class="ubicacion">
+  @if (ubicacion() !== null) {
+    <button mat-icon-button type="button" (click)="subir()" aria-label="Subir un nivel">
+      <mat-icon>arrow_upward</mat-icon>
+    </button>
+  }
+  <span>Destino: <strong>{{ nombreUbicacion() }}</strong></span>
+</div>
+
+@if (cargando()) {
+  <p class="aviso">Cargando…</p>
+} @else if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+} @else if (subcarpetas().length === 0) {
+  <p class="aviso">No hay subcarpetas aquí.</p>
+} @else {
+  <mat-action-list>
+    @for (carpeta of subcarpetas(); track carpeta._id) {
+      <button mat-list-item type="button" (click)="entrar(carpeta._id)">
+        <mat-icon matListItemIcon>folder</mat-icon>
+        <span matListItemTitle>{{ carpeta.nombre }}</span>
+      </button>
+    }
+  </mat-action-list>
+}

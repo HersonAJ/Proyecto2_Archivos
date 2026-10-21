@@ -1,29 +1,7 @@
 <h2 mat-dialog-title>Mover "{{ datos.carpeta.nombre }}"</h2>
 
 <mat-dialog-content>
-  <div class="ubicacion">
-    @if (ubicacion() !== null) {
-      <button mat-icon-button type="button" (click)="subir()" aria-label="Subir un nivel">
-        <mat-icon>arrow_upward</mat-icon>
-      </button>
-    }
-    <span>Destino: <strong>{{ nombreUbicacion() }}</strong></span>
-  </div>
-
-  @if (cargando()) {
-    <p class="aviso">Cargando…</p>
-  } @else if (subcarpetas().length === 0) {
-    <p class="aviso">No hay subcarpetas aquí.</p>
-  } @else {
-    <mat-action-list>
-      @for (c of subcarpetas(); track c._id) {
-        <button mat-list-item type="button" (click)="entrar(c._id)">
-          <mat-icon matListItemIcon>folder</mat-icon>
-          <span matListItemTitle>{{ c.nombre }}</span>
-        </button>
-      }
-    </mat-action-list>
-  }
+  <app-selector-carpeta [excluirId]="datos.carpeta._id" [(ubicacion)]="destino" />
 
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>
