@@ -1,0 +1,49 @@
+<section>
+  <h2 class="titulo">Comentarios <span class="contador">({{ comentarios().length }})</span></h2>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+  } @else if (comentarios().length === 0) {
+    <p class="aviso">Aún no hay comentarios.</p>
+  } @else {
+    <ul class="lista">
+      @for (comentario of comentarios(); track comentario._id) {
+        <li class="comentario">
+          <span class="avatar">{{ comentario.autor.nombre.charAt(0).toUpperCase() }}</span>
+          <div class="cuerpo">
+            <div class="encabezado">
+              <strong>{{ comentario.autor.nombre }}</strong>
+              <span class="fecha">{{ comentario.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <p class="texto">{{ comentario.texto }}</p>
+          </div>
+          @if (puedeBorrar(comentario)) {
+            <button mat-icon-button matTooltip="Borrar comentario" aria-label="Borrar comentario"
+                    (click)="borrar(comentario)">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (puedeComentar()) {
+    <div class="formulario">
+      <mat-form-field appearance="outline">
+        <mat-label>Escribe un comentario</mat-label>
+        <textarea matInput [formControl]="texto" rows="3" maxlength="1000"></textarea>
+        <mat-hint align="end">{{ texto.value.length }}/1000</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button type="button" [disabled]="enviando() || texto.invalid" (click)="enviar()">
+        Comentar
+      </button>
+    </div>
+  } @else {
+    <p class="aviso">Tu permiso no permite comentar.</p>
+  }
+</section>

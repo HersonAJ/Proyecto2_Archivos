@@ -137,7 +137,13 @@ export class ArchivosService {
     const acceso = await this.accesoService.exigirArchivo(actual.id, id, NivelPermiso.LECTURA);
     const archivo = await this.archivosRepository.buscarActivoPorId(id);
     if (!archivo) throw new NotFoundException('Archivo no encontrado');
-    return this.conNivel(archivo, acceso.nivel);
+
+    let compartidoPor: { _id: string; nombre: string; correo: string } | null = null;
+    if (acceso.nivel !== 'PROPIETARIO') {
+      const dueno = await this.usuariosService.findOne(acceso.propietarioId);
+      compartidoPor = { _id: dueno.id, nombre: dueno.nombre, correo: dueno.correo };
+    }
+    return { ...this.conNivel(archivo, acceso.nivel), compartidoPor };
   }
 
   async abrirContenido(id: string, actual: UsuarioAutenticado, descargar: boolean) {

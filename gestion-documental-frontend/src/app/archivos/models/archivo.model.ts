@@ -1,4 +1,5 @@
 import { NivelAcceso } from "../../comparticiones/models/comparticion.model";
+import { UsuarioResumen } from "../../usuarios/models/usuario.model";
 
 export enum TipoArchivo {
   TXT = 'txt',
@@ -31,6 +32,7 @@ export interface Archivo {
   createdAt: string;
   updatedAt: string;
   nivel?: NivelAcceso;
+  compartidoPor?: UsuarioResumen | null;
 }
 
 export interface ListarArchivosResponse {
