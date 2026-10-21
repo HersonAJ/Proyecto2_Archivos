@@ -11,47 +11,86 @@
   } @else if (archivos().length === 0) {
     <p class="aviso">No hay archivos en esta ubicación.</p>
   } @else {
-    <mat-list>
-      @for (archivo of archivos(); track archivo._id) {
-        <mat-list-item>
-          <mat-icon matListItemIcon [class.md-file]="esMarkdown(archivo)">
-            {{ obtenerIconoTipo(archivo.tipo) }}
-          </mat-icon>
-
-          <a matListItemTitle class="nombre-archivo enlace" [routerLink]="['/archivos', archivo._id]">{{ archivo.nombre }}</a>
-          <div matListItemLine class="meta-archivo">
-            {{ archivo.tamano | tamano }} • {{ archivo.createdAt | date:'dd/MM/yyyy HH:mm' }}
-            @if (archivo.etiquetas.length > 0) {
-              <span class="etiquetas"> • {{ archivo.etiquetas.join(', ') }}</span>
+    <div class="tabla-contenedor">
+      <table class="tabla" matSort [matSortActive]="orden()" [matSortDirection]="direccion()"
+             matSortDisableClear (matSortChange)="ordenar($event)">
+        <thead>
+          <tr>
+            <th mat-sort-header="nombre">Nombre</th>
+            <th>Tipo</th>
+            <th mat-sort-header="tamano" class="numerico">Tamaño</th>
+            <th mat-sort-header="creado">Subido</th>
+            @if (hayAjenos()) {
+              <th>Permiso</th>
             }
-            @if (!esMio(archivo)) {
-              <span class="etiquetas"> • Permiso: {{ etiquetaNivel(archivo.nivel ?? 'LECTURA') }}</span>
-            }
-          </div>
-
-          <button mat-icon-button matListItemMeta [matMenuTriggerFor]="menu" aria-label="Acciones del archivo">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="descargarArchivo(archivo)">
-              <mat-icon>download</mat-icon>
-              <span>Descargar</span>
-            </button>
-            @if (esMio(archivo)) {
-              <button mat-menu-item (click)="compartir(archivo)">
-                <mat-icon>share</mat-icon>
-                <span>Compartir</span>
-              </button>
-              <button mat-menu-item (click)="eliminar(archivo)">
-                <mat-icon>delete</mat-icon>
-                <span>Eliminar</span>
-              </button>
-            }
-          </mat-menu>
-        </mat-list-item>
-      }
-    </mat-list>
+            <th class="columna-acciones"><span class="solo-lector">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (archivo of archivos(); track archivo._id) {
+            <tr>
+              <td>
+                <div class="celda-nombre">
+                  <mat-icon [class.md-file]="esMarkdown(archivo)">{{ obtenerIconoTipo(archivo.tipo) }}</mat-icon>
+                  <div>
+                    <a class="nombre-enlace" [routerLink]="['/archivos', archivo._id]">{{ archivo.nombre }}</a>
+                    @if (archivo.etiquetas.length > 0) {
+                      <div class="etiquetas">
+                        @for (etiqueta of archivo.etiquetas; track etiqueta) {
+                          <span class="insignia">{{ etiqueta }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td>.{{ archivo.tipo }}</td>
+              <td class="numerico">{{ archivo.tamano | tamano }}</td>
+              <td>{{ archivo.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              @if (hayAjenos()) {
+                <td>{{ etiquetaNivel(archivo.nivel ?? 'PROPIETARIO') }}</td>
+              }
+              <td class="columna-acciones">
+                <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Acciones"
+                        aria-label="Acciones del archivo">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <a mat-menu-item [routerLink]="['/archivos', archivo._id]">
+                    <mat-icon>visibility</mat-icon>
+                    <span>Abrir</span>
+                  </a>
+                  <button mat-menu-item (click)="descargarArchivo(archivo)">
+                    <mat-icon>download</mat-icon>
+                    <span>Descargar</span>
+                  </button>
+                  @if (puedeEditar(archivo)) {
+                    <button mat-menu-item (click)="editar(archivo)">
+                      <mat-icon>edit</mat-icon>
+                      <span>Renombrar y etiquetas</span>
+                    </button>
+                  }
+                  @if (esMio(archivo)) {
+                    <button mat-menu-item (click)="mover(archivo)">
+                      <mat-icon>drive_file_move</mat-icon>
+                      <span>Mover</span>
+                    </button>
+                    <button mat-menu-item (click)="compartir(archivo)">
+                      <mat-icon>share</mat-icon>
+                      <span>Compartir</span>
+                    </button>
+                    <button mat-menu-item (click)="eliminar(archivo)">
+                      <mat-icon>delete</mat-icon>
+                      <span>Eliminar</span>
+                    </button>
+                  }
+                </mat-menu>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div class="paginador-container">
       <mat-paginator

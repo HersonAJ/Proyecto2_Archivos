@@ -1,40 +1,44 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, catchError, map, of, switchMap, tap } from 'rxjs';
 import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
-
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import { mensajeDeError } from '../../../core/utils/mensaje-error';
-import { TamanoPipe } from '../../../shared/pipes/tamano.pipe';
-import { Archivo, TipoArchivo, OrdenArchivo, SentidoOrden } from '../../models/archivo.model';
-import { ArchivosService } from '../../service/archivos.service';
-import { ArchivoFormComponent, DatosArchivoForm } from '../archivo-form/archivo-form.component';
-import { UsuariosService } from '../../../usuarios/services/usuarios.service';
-import { PapeleraService } from '../../../papelera/service/papelera.service';
-import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
+import { MatSortModule, Sort, SortDirection } from '@angular/material/sort';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
+import { BehaviorSubject, catchError, map, of, switchMap, tap } from 'rxjs';
 import { CompartirDialogComponent } from '../../../comparticiones/components/compartir-dialog/compartir-dialog.component';
 import { etiquetaNivel, tieneNivel } from '../../../comparticiones/models/comparticion.model';
 import { guardarBlob } from '../../../core/utils/descarga';
+import { mensajeDeError } from '../../../core/utils/mensaje-error';
+import { PapeleraService } from '../../../papelera/service/papelera.service';
+import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracion';
+import { TamanoPipe } from '../../../shared/pipes/tamano.pipe';
+import { UsuariosService } from '../../../usuarios/services/usuarios.service';
+import { Archivo, OrdenArchivo, SentidoOrden, TipoArchivo } from '../../models/archivo.model';
+import { ArchivosService } from '../../service/archivos.service';
+import { ArchivoEditarComponent } from '../archivo-editar/archivo-editar.component';
+import { ArchivoFormComponent, DatosArchivoForm } from '../archivo-form/archivo-form.component';
+import { ArchivoMoverComponent } from '../archivo-mover/archivo-mover.component';
 
 @Component({
   selector: 'app-archivo-list',
   imports: [
-    DatePipe, TamanoPipe,
+    DatePipe,
+    TamanoPipe,
+    RouterLink,
     MatButtonModule,
     MatIconModule,
-    MatListModule,
     MatMenuModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule, RouterLink
+    MatProgressSpinnerModule,
+    MatSortModule,
+    MatTooltipModule,
   ],
   templateUrl: './archivo-list.component.html',
   styleUrl: './archivo-list.component.scss',
@@ -43,18 +47,29 @@ import { guardarBlob } from '../../../core/utils/descarga';
 export class ArchivoListComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly archivosService = inject(ArchivosService);
-  private readonly dialog = inject(MatDialog);
-  private readonly usuariosService = inject(UsuariosService);
   private readonly papeleraService = inject(PapeleraService);
+  private readonly usuariosService = inject(UsuariosService);
+  private readonly dialog = inject(MatDialog);
   readonly carpetaId = input<string | null>(null);
+
   protected readonly archivos = signal<Archivo[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly total = signal(0);
+
   protected readonly pagina = signal(1);
   protected readonly limite = signal(20);
-  private readonly recarga = new BehaviorSubject<void>(undefined);
+  protected readonly orden = signal<OrdenArchivo>(OrdenArchivo.CREADO);
+  protected readonly sentido = signal<SentidoOrden>(SentidoOrden.DESC);
+
+  protected readonly direccion = computed<SortDirection>(() =>
+    this.sentido() === SentidoOrden.ASC ? 'asc' : 'desc',
+  );
+
   protected readonly etiquetaNivel = etiquetaNivel;
+  protected readonly hayAjenos = computed(() => this.archivos().some((a) => !this.esMio(a)));
+
+  private readonly recarga = new BehaviorSubject<void>(undefined);
 
   constructor() {
     toObservable(this.carpetaId)
@@ -71,8 +86,8 @@ export class ArchivoListComponent {
               carpeta: id,
               pagina: this.pagina(),
               limite: this.limite(),
-              orden: OrdenArchivo.CREADO,
-              sentido: SentidoOrden.DESC,
+              orden: this.orden(),
+              sentido: this.sentido(),
             })
             .pipe(
               catchError((e: unknown) => {
@@ -112,8 +127,8 @@ export class ArchivoListComponent {
       .afterClosed()
       .subscribe((guardado) => {
         if (guardado) {
-          this.usuariosService.actualizarAlmacenamiento();
           this.snackBar.open('Archivo subido con éxito', 'Cerrar', { duration: 3000 });
+          this.usuariosService.actualizarAlmacenamiento();
           this.recargar();
         }
       });
@@ -125,26 +140,61 @@ export class ArchivoListComponent {
     this.recargar();
   }
 
+  protected ordenar(evento: Sort) {
+    const campo = Object.values(OrdenArchivo).find((o) => o === evento.active);
+    if (!campo) return;
+    this.orden.set(campo);
+    this.sentido.set(evento.direction === 'asc' ? SentidoOrden.ASC : SentidoOrden.DESC);
+    this.pagina.set(1);
+    this.recargar();
+  }
+
+  protected esMio(archivo: Archivo): boolean {
+    return tieneNivel(archivo.nivel, 'PROPIETARIO');
+  }
+
+  protected puedeEditar(archivo: Archivo): boolean {
+    return tieneNivel(archivo.nivel, 'EDICION');
+  }
+
+  protected editar(archivo: Archivo) {
+    this.dialog
+      .open(ArchivoEditarComponent, { width: '480px', data: { archivo } })
+      .afterClosed()
+      .subscribe((guardado) => {
+        if (guardado) this.terminar('Archivo actualizado');
+      });
+  }
+
+  protected mover(archivo: Archivo) {
+    this.dialog
+      .open(ArchivoMoverComponent, { width: '440px', data: { archivo } })
+      .afterClosed()
+      .subscribe((movido) => {
+        if (movido) {
+          if (this.archivos().length === 1 && this.pagina() > 1) this.pagina.update((p) => p - 1);
+          this.terminar('Archivo movido');
+        }
+      });
+  }
+
+  protected compartir(archivo: Archivo) {
+    this.dialog.open(CompartirDialogComponent, {
+      width: '560px',
+      data: { tipoRecurso: 'ARCHIVO', recurso: archivo._id, nombre: archivo.nombre },
+    });
+  }
+
   protected descargarArchivo(archivo: Archivo) {
     this.archivosService.obtenerContenido(archivo._id, true).subscribe({
       next: ({ blob, nombreArchivo }) => {
-
-          guardarBlob(blob, nombreArchivo ?? archivo.nombre);
-
+        guardarBlob(blob, nombreArchivo ?? archivo.nombre);
         this.snackBar.open('Archivo descargado con éxito', 'Cerrar', { duration: 3000 });
       },
       error: (e: unknown) => {
         this.snackBar.open(mensajeDeError(e, 'Error al descargar'), 'Cerrar', { duration: 4000 });
       },
     });
-  }
-
-  protected esMarkdown(archivo: Archivo): boolean {
-    return archivo.tipo === TipoArchivo.MD;
-  }
-
-  protected obtenerIconoTipo(tipo: TipoArchivo): string {
-    return tipo === TipoArchivo.MD ? 'description' : 'text_snippet';
   }
 
   protected eliminar(archivo: Archivo) {
@@ -162,6 +212,14 @@ export class ArchivoListComponent {
     });
   }
 
+  protected esMarkdown(archivo: Archivo): boolean {
+    return archivo.tipo === TipoArchivo.MD;
+  }
+
+  protected obtenerIconoTipo(tipo: TipoArchivo): string {
+    return tipo === TipoArchivo.MD ? 'description' : 'text_snippet';
+  }
+
   private deshacerEliminacion(id: string) {
     this.papeleraService.restaurarArchivo(id).subscribe({
       next: (resultado) => {
@@ -173,14 +231,8 @@ export class ArchivoListComponent {
     });
   }
 
-  protected esMio(archivo: Archivo): boolean {
-    return tieneNivel(archivo.nivel, 'PROPIETARIO');
-  }
-
-  protected compartir(archivo: Archivo) {
-    this.dialog.open(CompartirDialogComponent, {
-      width: '560px',
-      data: { tipoRecurso: 'ARCHIVO', recurso: archivo._id, nombre: archivo.nombre },
-    });
+  private terminar(mensaje: string) {
+    this.snackBar.open(mensaje, 'Cerrar', { duration: 3000 });
+    this.recargar();
   }
 }
