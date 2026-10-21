@@ -12,6 +12,7 @@ import { ListarArchivosDto } from './dto/listar-archivos.dto';
 import { MoverArchivoDto } from './dto/mover-archivo.dto';
 import { SubirArchivoDto } from './dto/subir-archivo.dto';
 import { EditarContenidoDto } from './dto/editar-contenido.dto';
+import { ConsultaEtiquetasDto } from './dto/consulta-etiquetas.dto';
 
 const TIPO_MIME: Record<TipoArchivo, string> = {
   [TipoArchivo.TXT]: 'text/plain',
@@ -38,6 +39,14 @@ export class ArchivosController {
     @UsuarioActual() actual: UsuarioAutenticado,
   ) {
     return this.archivosService.listar(filtros, actual);
+  }
+
+  @Get('etiquetas')
+  etiquetas(
+    @Query() consulta: ConsultaEtiquetasDto,
+    @UsuarioActual() actual: UsuarioAutenticado,
+  ) {
+    return this.archivosService.etiquetas(consulta.carpeta, actual);
   }
 
   @Get(':id')

@@ -19,6 +19,7 @@ import { ArchivoDocument } from './entities/archivo.entity';
 import { ArchivosRepository } from './repository/archivos.repository';
 import { ContenidosRepository } from './repository/contenidos.repository';
 import { EditarContenidoDto } from './dto/editar-contenido.dto';
+import { Types } from 'mongoose';
 
 const TIPOS_POR_EXTENSION: Record<string, TipoArchivo | undefined> = {
   '.txt': TipoArchivo.TXT,
@@ -123,10 +124,20 @@ export class ArchivosService {
         ? new Map<string, NivelPermiso>()
         : await this.accesoService.nivelesDirectos(actual.id, datos.map((a) => a._id));
 
+    const busquedaGlobal = carpeta === undefined;
+    let nombres = new Map<string, string>();
+    if (busquedaGlobal) {
+      const ids = [...new Set(datos.flatMap((a) => (a.carpeta ? [a.carpeta.toString()] : [])))];
+      nombres = await this.carpetaService.nombresDe(ids.map((id) => new Types.ObjectId(id)));
+    }
+
     return {
-      datos: datos.map((a) =>
-        this.conNivel(a, this.accesoService.mayor(nivelBase, directos.get(a.id))),
-      ),
+      datos: datos.map((a) => ({
+        ...this.conNivel(a, this.accesoService.mayor(nivelBase, directos.get(a.id))),
+        ...(busquedaGlobal && {
+          ubicacion: a.carpeta ? (nombres.get(a.carpeta.toString()) ?? null) : null,
+        }),
+      })),
       total,
       pagina,
       limite,
@@ -292,7 +303,7 @@ export class ArchivosService {
     }
   }
 
-    // Reemplaza el contenido completo. Requiere permiso de edición (o ser el propietario).
+  // Reemplaza el contenido completo. Requiere permiso de edición (o ser el propietario).
   async editarContenido(
     id: string,
     archivo: Express.Multer.File | undefined,
@@ -329,8 +340,8 @@ export class ArchivosService {
         'El archivo cambió mientras lo editabas. Recárgalo para ver la versión actual.',
       );
     }
-  
-        // 3. Borrar el contenido anterior. Si falla, queda un contenido sobrante que nadie ve.
+
+    // 3. Borrar el contenido anterior. Si falla, queda un contenido sobrante que nadie ve.
     await this.contenidosRepository.eliminar(anterior.contenidoId.toString()).catch((error: unknown) =>
       this.logger.error(`No se pudo borrar el contenido anterior de ${anterior.nombre}`, String(error)),
     );
@@ -351,5 +362,11 @@ export class ArchivosService {
       detalles: { tamanoAnterior: anterior.tamano, tamanoNuevo: archivo.size },
     });
     return this.conNivel(actualizado, acceso.nivel);
+  }
+
+  async etiquetas(carpeta: string | undefined, actual: UsuarioAutenticado) {
+    if (!carpeta) return this.archivosRepository.etiquetasDistintas(actual.id);
+    const acceso = await this.accesoService.exigirCarpeta(actual.id, carpeta, NivelPermiso.LECTURA);
+    return this.archivosRepository.etiquetasDistintas(acceso.propietarioId, carpeta);
   }
 }

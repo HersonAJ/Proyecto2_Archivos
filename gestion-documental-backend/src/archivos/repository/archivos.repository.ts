@@ -174,4 +174,11 @@ export class ArchivosRepository {
             )
             .exec();
     }
+
+    async etiquetasDistintas(propietario: string, carpeta?: string): Promise<string[]> {
+        const etiquetas = carpeta
+            ? await this.modelo.distinct('etiquetas', { propietario, carpeta, enPapelera: false }).exec()
+            : await this.modelo.distinct('etiquetas', { propietario, enPapelera: false }).exec();
+        return (etiquetas as string[]).sort((a, b) => a.localeCompare(b, 'es'));
+    }
 }
