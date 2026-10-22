@@ -33,6 +33,7 @@ export interface Archivo {
   updatedAt: string;
   nivel?: NivelAcceso;
   compartidoPor?: UsuarioResumen | null;
+  ubicacion?: string | null;
 }
 
 export interface ListarArchivosResponse {

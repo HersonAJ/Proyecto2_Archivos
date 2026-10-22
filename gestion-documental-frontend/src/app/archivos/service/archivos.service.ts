@@ -69,12 +69,15 @@ export class ArchivosService extends ApiService {
         return this.http.patch<Archivo>(`${this.baseUrl}/archivos/${id}/mover`, { carpeta });
     }
 
-    // Reemplaza el contenido completo. "version" es el updatedAt que el editor cargó:
-    // si alguien modificó el archivo mientras tanto, el servidor responde 409.
     editarContenido(id: string, texto: string, version: string) {
         const formData = new FormData();
         formData.append('archivo', new Blob([texto], { type: 'text/plain' }), 'contenido.txt');
         formData.append('version', version);
         return this.http.put<Archivo>(`${this.baseUrl}/archivos/${id}/contenido`, formData);
+    }
+
+    etiquetas(carpeta?: string) {
+        const params: Record<string, string> = carpeta ? { carpeta } : {};
+        return this.http.get<string[]>(`${this.baseUrl}/archivos/etiquetas`, { params });
     }
 }

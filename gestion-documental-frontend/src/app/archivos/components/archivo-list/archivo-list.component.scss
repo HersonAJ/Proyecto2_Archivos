@@ -111,3 +111,18 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
+
+.nota-busqueda {
+  margin: 0 0 8px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.enlace-ubicacion {
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

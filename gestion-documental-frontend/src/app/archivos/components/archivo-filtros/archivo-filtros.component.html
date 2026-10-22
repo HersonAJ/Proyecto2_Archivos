@@ -1,0 +1,80 @@
+<div class="barra" [formGroup]="formulario()">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-busqueda">
+    <mat-label>Buscar por nombre</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput formControlName="q" maxlength="100" autocomplete="off" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-corto">
+    <mat-label>Tipo</mat-label>
+    <mat-select formControlName="tipo">
+      <mat-option value="">Todos</mat-option>
+      <mat-option value="txt">.txt</mat-option>
+      <mat-option value="md">.md</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-corto">
+    <mat-label>Etiqueta</mat-label>
+    <mat-select formControlName="etiqueta">
+      <mat-option value="">Todas</mat-option>
+      @for (etiqueta of etiquetas(); track etiqueta) {
+        <mat-option [value]="etiqueta">{{ etiqueta }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-fechas">
+    <mat-label>Rango de fechas</mat-label>
+    <mat-date-range-input [rangePicker]="selectorFechas">
+      <input matStartDate formControlName="desde" placeholder="Desde" />
+      <input matEndDate formControlName="hasta" placeholder="Hasta" />
+    </mat-date-range-input>
+    <mat-datepicker-toggle matIconSuffix [for]="selectorFechas"></mat-datepicker-toggle>
+    <mat-date-range-picker #selectorFechas></mat-date-range-picker>
+  </mat-form-field>
+</div>
+
+@if (hayFiltros()) {
+  <div class="activos">
+    @if (valores().q.trim()) {
+      <span class="filtro-activo">
+        Nombre contiene «{{ valores().q.trim() }}»
+        <button type="button" aria-label="Quitar el filtro de nombre" (click)="quitarBusqueda()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </span>
+    }
+    @if (valores().tipo) {
+      <span class="filtro-activo">
+        Tipo: .{{ valores().tipo }}
+        <button type="button" aria-label="Quitar el filtro de tipo" (click)="quitarTipo()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </span>
+    }
+    @if (valores().etiqueta) {
+      <span class="filtro-activo">
+        Etiqueta: {{ valores().etiqueta }}
+        <button type="button" aria-label="Quitar el filtro de etiqueta" (click)="quitarEtiqueta()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </span>
+    }
+    @if (hayFechas()) {
+      <span class="filtro-activo">
+        Fechas:
+        @if (valores().desde) {
+          desde {{ valores().desde | date: 'dd/MM/yyyy' }}
+        }
+        @if (valores().hasta) {
+          hasta {{ valores().hasta | date: 'dd/MM/yyyy' }}
+        }
+        <button type="button" aria-label="Quitar el filtro de fechas" (click)="quitarFechas()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </span>
+    }
+    <button mat-button type="button" (click)="limpiar()">Limpiar filtros</button>
+  </div>
+}

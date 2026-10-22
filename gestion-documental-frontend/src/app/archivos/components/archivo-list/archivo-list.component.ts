@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSortModule, Sort, SortDirection } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { BehaviorSubject, catchError, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, debounceTime, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { CompartirDialogComponent } from '../../../comparticiones/components/compartir-dialog/compartir-dialog.component';
 import { etiquetaNivel, tieneNivel } from '../../../comparticiones/models/comparticion.model';
 import { guardarBlob } from '../../../core/utils/descarga';
@@ -21,8 +21,10 @@ import { mensajeRestauracion } from '../../../papelera/utils/mensaje-restauracio
 import { TamanoPipe } from '../../../shared/pipes/tamano.pipe';
 import { UsuariosService } from '../../../usuarios/services/usuarios.service';
 import { Archivo, OrdenArchivo, SentidoOrden, TipoArchivo } from '../../models/archivo.model';
+import { ValoresFiltros, aParametros, crearFormularioFiltros, hayFiltrosActivos } from '../../models/filtros-archivo.model';
 import { ArchivosService } from '../../service/archivos.service';
 import { ArchivoEditarComponent } from '../archivo-editar/archivo-editar.component';
+import { ArchivoFiltrosComponent } from '../archivo-filtros/archivo-filtros.component';
 import { ArchivoFormComponent, DatosArchivoForm } from '../archivo-form/archivo-form.component';
 import { ArchivoMoverComponent } from '../archivo-mover/archivo-mover.component';
 
@@ -39,6 +41,7 @@ import { ArchivoMoverComponent } from '../archivo-mover/archivo-mover.component'
     MatProgressSpinnerModule,
     MatSortModule,
     MatTooltipModule,
+    ArchivoFiltrosComponent,
   ],
   templateUrl: './archivo-list.component.html',
   styleUrl: './archivo-list.component.scss',
@@ -51,6 +54,7 @@ export class ArchivoListComponent {
   private readonly usuariosService = inject(UsuariosService);
   private readonly dialog = inject(MatDialog);
   readonly carpetaId = input<string | null>(null);
+  readonly buscarEnTodo = input(true);
 
   protected readonly archivos = signal<Archivo[]>([]);
   protected readonly cargando = signal(true);
@@ -66,43 +70,68 @@ export class ArchivoListComponent {
     this.sentido() === SentidoOrden.ASC ? 'asc' : 'desc',
   );
 
+  protected readonly formulario = crearFormularioFiltros();
+  protected readonly valores = signal<ValoresFiltros>(this.formulario.getRawValue());
+  protected readonly hayFiltros = computed(() => hayFiltrosActivos(this.valores()));
+  protected readonly busquedaGlobal = computed(() => this.hayFiltros() && this.buscarEnTodo());
+  protected readonly etiquetasDisponibles = signal<string[]>([]);
+
   protected readonly etiquetaNivel = etiquetaNivel;
   protected readonly hayAjenos = computed(() => this.archivos().some((a) => !this.esMio(a)));
-
   private readonly recarga = new BehaviorSubject<void>(undefined);
 
   constructor() {
+    this.formulario.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.valores.set(this.formulario.getRawValue()));
+
+    this.formulario.valueChanges.pipe(debounceTime(300), takeUntilDestroyed()).subscribe(() => {
+      this.pagina.set(1);
+      this.recargar();
+    });
+
     toObservable(this.carpetaId)
       .pipe(
-        tap(() => this.pagina.set(1)),
+        tap(() => {
+          this.pagina.set(1);
+          this.formulario.reset(undefined, { emitEvent: false });
+          this.valores.set(this.formulario.getRawValue());
+        }),
         switchMap((id) => this.recarga.pipe(map(() => id))),
         tap(() => {
           this.cargando.set(true);
           this.error.set(null);
         }),
         switchMap((id) =>
-          this.archivosService
-            .listar({
-              carpeta: id,
-              pagina: this.pagina(),
-              limite: this.limite(),
-              orden: this.orden(),
-              sentido: this.sentido(),
-            })
-            .pipe(
-              catchError((e: unknown) => {
-                this.error.set(mensajeDeError(e, 'No se pudieron cargar los archivos'));
-                return of(null);
-              }),
-            ),
+          forkJoin({
+            lista: this.archivosService
+              .listar({
+                carpeta: this.busquedaGlobal() ? null : id,
+                pagina: this.pagina(),
+                limite: this.limite(),
+                orden: this.orden(),
+                sentido: this.sentido(),
+                ...aParametros(this.formulario.getRawValue()),
+              })
+              .pipe(
+                catchError((e: unknown) => {
+                  this.error.set(mensajeDeError(e, 'No se pudieron cargar los archivos'));
+                  return of(null);
+                }),
+              ),
+            etiquetas: this.archivosService
+              .etiquetas(id && !this.buscarEnTodo() ? id : undefined)
+              .pipe(catchError(() => of([] as string[]))),
+          }),
         ),
         takeUntilDestroyed(),
       )
-      .subscribe((respuesta) => {
+      .subscribe(({ lista, etiquetas }) => {
         this.cargando.set(false);
-        if (respuesta) {
-          this.archivos.set(respuesta.datos);
-          this.total.set(respuesta.total);
+        this.etiquetasDisponibles.set(etiquetas);
+        if (lista) {
+          this.archivos.set(lista.datos);
+          this.total.set(lista.total);
         } else {
           this.archivos.set([]);
           this.total.set(0);

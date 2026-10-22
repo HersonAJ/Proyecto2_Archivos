@@ -1,6 +1,15 @@
 <section>
   <h2 class="titulo-seccion">Archivos</h2>
 
+  <app-archivo-filtros
+    [formulario]="formulario"
+    [valores]="valores()"
+    [etiquetas]="etiquetasDisponibles()" />
+
+  @if (busquedaGlobal()) {
+    <p class="nota-busqueda">Buscando en todas tus carpetas.</p>
+  }
+
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>
   } @else if (cargando() && archivos().length === 0) {
@@ -9,15 +18,23 @@
       <p>Cargando archivos…</p>
     </div>
   } @else if (archivos().length === 0) {
-    <p class="aviso">No hay archivos en esta ubicación.</p>
+    @if (hayFiltros()) {
+      <p class="aviso">Ningún archivo coincide con los filtros.</p>
+    } @else {
+      <p class="aviso">No hay archivos en esta ubicación.</p>
+    }
   } @else {
     <div class="tabla-contenedor">
+      <!-- matSort ordena al pulsar los encabezados; el orden real lo hace el servidor -->
       <table class="tabla" matSort [matSortActive]="orden()" [matSortDirection]="direccion()"
              matSortDisableClear (matSortChange)="ordenar($event)">
         <thead>
           <tr>
             <th mat-sort-header="nombre">Nombre</th>
             <th>Tipo</th>
+            @if (busquedaGlobal()) {
+              <th>Ubicación</th>
+            }
             <th mat-sort-header="tamano" class="numerico">Tamaño</th>
             <th mat-sort-header="creado">Subido</th>
             @if (hayAjenos()) {
@@ -45,6 +62,15 @@
                 </div>
               </td>
               <td>.{{ archivo.tipo }}</td>
+              @if (busquedaGlobal()) {
+                <td>
+                  @if (archivo.carpeta) {
+                    <a class="enlace-ubicacion" [routerLink]="['/carpetas', archivo.carpeta]">{{ archivo.ubicacion }}</a>
+                  } @else {
+                    <a class="enlace-ubicacion" routerLink="/carpetas">Mis documentos</a>
+                  }
+                </td>
+              }
               <td class="numerico">{{ archivo.tamano | tamano }}</td>
               <td>{{ archivo.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
               @if (hayAjenos()) {

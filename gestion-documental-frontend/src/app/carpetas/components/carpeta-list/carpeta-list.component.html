@@ -98,6 +98,6 @@
   </section>
 
   @if (!error()) {
-    <app-archivo-list [carpetaId]="idActual()" />
+    <app-archivo-list [carpetaId]="idActual()" [buscarEnTodo]="esPropietario()" />
   }
 </main>
