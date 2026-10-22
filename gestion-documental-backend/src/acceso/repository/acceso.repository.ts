@@ -17,7 +17,7 @@ export class AccesoRepository {
     carpetaActiva(id: string) {
         return this.carpetas
         .findOne({ _id: id, enPapelera: false})
-        .select('nombre propietario ancetros')
+        .select('nombre propietario ancestros')
         .lean()
         .exec();
     }
