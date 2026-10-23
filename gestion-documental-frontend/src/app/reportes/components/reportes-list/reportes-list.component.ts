@@ -24,5 +24,11 @@ export class ReportesListComponent {
       icono: 'bar_chart',
       ruta: '/reportes/actividad-por-tipo',
     },
+    {
+      titulo: 'Archivos por tipo',
+      descripcion: 'Cantidad de archivos agrupados por tipo (.txt / .md).',
+      icono: 'description',
+      ruta: '/reportes/archivos-por-tipo',
+    },
   ];
 }

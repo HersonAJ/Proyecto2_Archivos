@@ -10,4 +10,10 @@ export class ReportesService {
     const filas = await this.reportesRepository.operacionesPorTipo();
     return filas.map((fila) => ({ accion: fila._id, total: fila.total }));
   }
+
+  //reporte 1
+  async archivosPorTipo() {
+    const filas = await this.reportesRepository.archivosPorTipo();
+    return filas.map((fila) => ({ tipo: fila._id, total: fila.total }));
+  }
 }

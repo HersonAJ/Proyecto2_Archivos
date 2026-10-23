@@ -10,6 +10,7 @@ import { cambiosSinGuardarGuard } from './core/guards/cambios-sin-fuardar.guard'
 import { ArchivoVisorComponent } from './archivos/components/archivo-visor/archivo-visor.component';
 import { ReportesListComponent } from './reportes/components/reportes-list/reportes-list.component';
 import { ActividadPorTipoComponent } from './reportes/components/actividad-por-tipo/actividad-por-tipo.component';
+import { ArchivosPorTipoComponent } from './reportes/components/archivos-por-tipo/archivos-por-tipo.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'usuarios', component: UsuarioListComponent, canActivate: [rolGuard(['ADMIN'])] },
       { path: 'reportes', component: ReportesListComponent, canActivate: [rolGuard(['ADMIN'])] },
       { path: 'reportes/actividad-por-tipo', component: ActividadPorTipoComponent, canActivate: [rolGuard(['ADMIN'])] },
+      { path: 'reportes/archivos-por-tipo', component: ArchivosPorTipoComponent, canActivate: [rolGuard(['ADMIN'])] },
 
       { path: '', redirectTo: 'carpetas', pathMatch: 'full' },
     ],

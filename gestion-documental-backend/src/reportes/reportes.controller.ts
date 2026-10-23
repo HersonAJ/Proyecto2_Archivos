@@ -12,4 +12,9 @@ export class ReportesController {
     operacionesPorTipo() {
         return this.reportesService.operacionesPorTipo();
     }
+
+    @Get('archivos/por-tipo')
+    archivosPorTipo() {
+        return this.reportesService.archivosPorTipo();
+    }
 }

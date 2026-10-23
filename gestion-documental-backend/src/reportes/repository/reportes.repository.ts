@@ -26,4 +26,15 @@ export class ReportesRepository {
             ])
             .exec();
     }
+
+    //reporte 1 cantidad de archivos
+    archivosPorTipo() {
+        return this.archivos
+            .aggregate<{ _id: string; total: number }>([
+                { $match: { enPapelera: false } },
+                { $group: { _id: '$tipo', total: { $sum: 1 } } },
+                { $sort: { total: -1 } },
+            ])
+            .exec();
+    }
 }

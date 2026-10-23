@@ -1,0 +1,42 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div class="cabecera-izquierda">
+      <button mat-icon-button (click)="volver()" aria-label="Volver a reportes">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="titulo-pagina">Archivos por tipo</h1>
+        <p class="nota">Cantidad de archivos agrupados por tipo (.txt / .md).</p>
+      </div>
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (tipos().length === 0) {
+    <p class="vacio">No hay archivos registrados.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th class="numerico">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of tipos(); track t.tipo) {
+            <tr>
+              <td>{{ t.tipo }}</td>
+              <td class="numerico">{{ t.total }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
