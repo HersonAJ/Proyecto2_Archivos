@@ -114,4 +114,26 @@ export class ReportesRepository {
             ])
             .exec();
     }
+
+    archivosPorFecha(desde: Date | undefined, hasta: Date | undefined, pagina: number, limite: number) {
+        const match: Record<string, unknown> = { enPapelera: false };
+        if (desde || hasta) {
+            const rango: Record<string, Date> = {};
+            if (desde) rango['$gte'] = desde;
+            if (hasta) rango['$lte'] = hasta;
+            match['createdAt'] = rango;
+        }
+
+        return Promise.all([
+            this.archivos
+                .find(match)
+                .sort({ createdAt: -1 })
+                .skip((pagina - 1) * limite)
+                .limit(limite)
+                .select('nombre tipo tamano propietario createdAt')
+                .lean()
+                .exec(),
+            this.archivos.countDocuments(match).exec(),
+        ]).then(([datos, total]) => ({ datos, total }));
+    }
 }

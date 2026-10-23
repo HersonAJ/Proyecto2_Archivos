@@ -8,13 +8,14 @@ import { ComparticionesRepository } from '../comparticiones/repository/compartic
 import { Types } from 'mongoose';
 import { ActividadesRepository } from '../acciones/repository/actividades.repository';
 import { ReporteHistorialDto } from './dto/reporte-historial.dto';
+import { ReporteFechasDto } from './dto/reporte-fechas.dto';
 
 @Injectable()
 export class ReportesService {
   constructor(
     private readonly reportesRepository: ReportesRepository,
     private readonly comparticionesRepository: ComparticionesRepository,
-    private readonly actividadesRepositoru: ActividadesRepository,
+    private readonly actividadesRepository: ActividadesRepository
   ) { }
 
   //reporte 10
@@ -95,7 +96,7 @@ export class ReportesService {
       throw new ForbiddenException('Solo puedes consultar tu propio historial');
     }
 
-    const { datos, total } = await this.actividadesRepositoru.buscar(
+    const { datos, total } = await this.actividadesRepository.buscar(
       {
         usuario: usuarioId,
         desde: dto.desde,
@@ -105,6 +106,16 @@ export class ReportesService {
       dto.limite,
     );
 
+    return { datos, total, pagina: dto.pagina, limite: dto.limite };
+  }
+
+  async archivosPorFecha(dto: ReporteFechasDto) {
+    const { datos, total } = await this.reportesRepository.archivosPorFecha(
+      dto.desde,
+      dto.hasta,
+      dto.pagina,
+      dto.limite,
+    );
     return { datos, total, pagina: dto.pagina, limite: dto.limite };
   }
 

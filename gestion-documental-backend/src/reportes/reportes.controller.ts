@@ -7,6 +7,7 @@ import { UsuarioActual } from '../autenticacion/decorators/usuario-actual.decora
 import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
 import { ReportePorUsuarioDto } from './dto/reporte-usuario.dto';
 import { ReporteHistorialDto } from './dto/reporte-historial.dto';
+import { ReporteFechasDto } from './dto/reporte-fechas.dto';
 
 @Controller('reportes')
 @Roles(RolUsuario.ADMIN)
@@ -48,6 +49,11 @@ export class ReportesController {
         @UsuarioActual() actual: UsuarioAutenticado,
     ) {
         return this.reportesService.historialActividades(dto, actual);
+    }
+
+    @Get('archivos/por-fechas')
+    archivosPorFechas(@Query() dto: ReporteFechasDto) {
+        return this.reportesService.archivosPorFecha(dto);
     }
     
 }
