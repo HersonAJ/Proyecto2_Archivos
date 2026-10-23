@@ -7,7 +7,7 @@
   </header>
 
   <div class="grid">
-    @for (reporte of reportes; track reporte.ruta) {
+    @for (reporte of reportesVisibles(); track reporte.ruta) {
       <a class="card" [routerLink]="reporte.ruta">
         <mat-icon class="card-icono">{{ reporte.icono }}</mat-icon>
         <div class="card-texto">

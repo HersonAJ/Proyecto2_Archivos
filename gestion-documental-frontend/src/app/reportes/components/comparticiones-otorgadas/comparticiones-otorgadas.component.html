@@ -1,0 +1,64 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div class="cabecera-izquierda">
+      <button mat-icon-button (click)="volver()" aria-label="Volver a reportes">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="titulo-pagina">Recursos compartidos</h1>
+        <p class="nota">Recursos que has compartido con otros usuarios.</p>
+      </div>
+    </div>
+  </header>
+
+  @if (esAdmin()) {
+    <mat-form-field appearance="outline" class="selector-usuario">
+      <mat-label>Usuario</mat-label>
+      <mat-select
+        [value]="usuarioSeleccionado()"
+        (selectionChange)="cambiarUsuario($event.value)"
+      >
+        @for (u of usuarios(); track u._id) {
+          <mat-option [value]="u._id">
+            {{ u.nombre }} ({{ u.correo }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (comparticiones().length === 0) {
+    <p class="vacio">Este usuario no ha compartido ningún recurso todavía.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Recurso</th>
+            <th>Tipo</th>
+            <th>Compartido con</th>
+            <th>Nivel</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of comparticiones(); track c._id) {
+            <tr>
+              <td>{{ c.recurso.nombre }}</td>
+              <td>{{ c.tipoRecurso }}</td>
+              <td>{{ c.destinatario.nombre }} ({{ c.destinatario.correo }})</td>
+              <td>{{ c.nivel }}</td>
+              <td>{{ c.compartidoEn | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

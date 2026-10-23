@@ -6,6 +6,7 @@ import { Archivo, ArchivoDocument } from '../../archivos/entities/archivo.entity
 import { Carpeta, CarpetaDocument } from '../../carpetas/entities/carpeta.entity';
 import { Comparticion, ComparticionDocument } from '../../comparticiones/entities/comparticion.entity';
 import { Usuario, UsuarioDocument } from '../../usuarios/entities/usuario.entity';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class ReportesRepository {
@@ -34,6 +35,44 @@ export class ReportesRepository {
                 { $match: { enPapelera: false } },
                 { $group: { _id: '$tipo', total: { $sum: 1 } } },
                 { $sort: { total: -1 } },
+            ])
+            .exec();
+    }
+
+    //reporte 7 recursos que un usuario ha compartido
+    comparticionesOtorgadas(usuarioId: string, limite: number) {
+        return this.comparticiones
+            .aggregate<{
+                _id: Types.ObjectId;
+                tipoRecurso: string;
+                recurso: Types.ObjectId;
+                nivel: string;
+                compartidoEn: Date,
+                destinatario: { _id: Types.ObjectId; nombre: string; correo: string };
+            }>([
+                { $match: { propietario: new Types.ObjectId(usuarioId) } },
+                { $sort: { createdAt: -1 } },
+                { $limit: limite },
+                {
+                    $lookup: {
+                        from: 'usuarios',
+                        localField: 'destinatario',
+                        foreignField: '_id',
+                        as: 'destinatario',
+                        pipeline: [{ $project: { _id: 1, nombre: 1, correo: 1 } }],
+                    },
+                },
+                { $unwind: '$destinatario' },
+                {
+                    $project: {
+                        _id: 1,
+                        tipoRecurso: 1,
+                        recurso: 1,
+                        nivel: 1,
+                        compartidoEn: '$createdAt',
+                        destinatario: 1,
+                    },
+                },
             ])
             .exec();
     }
