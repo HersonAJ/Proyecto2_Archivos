@@ -8,7 +8,7 @@ import { RolUsuario } from '../common/enums/rol-usuario.enum';
 import { Roles } from '../autenticacion/decorators/roles.decorator';
 import { UsuarioActual } from '../autenticacion/decorators/usuario-actual.decorator';
 import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
-import { BuscarUsuariosDto } from './dto/buscar-usurios.dto';
+import { BuscarUsuariosDto } from './dto/buscar-usuarios.dto';
 
 @Controller('usuarios')
 @Roles(RolUsuario.ADMIN)

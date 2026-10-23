@@ -58,6 +58,6 @@ ArchivoSchema.index(
 );
 
 //indice para cunsulta por rango de fechas 
-ArchivoSchema.index({ propietario: 1, createAt: -1});
+ArchivoSchema.index({ propietario: 1, createdAt: -1});
 
 ArchivoSchema.index({ etiquetas: 1});

@@ -27,7 +27,7 @@ export class ActividadesRepository {
         }
         if (filtro.accion) consulta.where('accion').equals(filtro.accion);
         if (filtro.tipoRecurso) consulta.where('tipoRecurso').equals(filtro.tipoRecurso);
-        if (filtro.recurso) consulta.where('recuros').equals(filtro.recurso);
+        if (filtro.recurso) consulta.where('recurso').equals(filtro.recurso);
         if (filtro.desde) consulta.where('fecha').gte(filtro.desde.getTime());
         if (filtro.hasta) consulta.where('fecha').lte(filtro.hasta.getTime());
 

@@ -4,7 +4,7 @@ import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-a
 import { ParseObjectIdPipe1 } from '../common/pipes/parse-object-id.pipe';
 import { ComparticionesService } from './comparticiones.service';
 import { CambiarNivelDto } from './dto/cambiar-nivel.dto';
-import { CompartirDto } from './dto/compartir.dt';
+import { CompartirDto } from './dto/compartir.dto';
 import { ConsultaRecursoDto } from './dto/consulta-recurso.dto';
 
 @Controller('comparticiones')

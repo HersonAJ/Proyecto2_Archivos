@@ -8,7 +8,7 @@ import { TipoRecurso } from '../common/enums/tipo-recurso.enum';
 import { esClaveDuplicada } from '../common/utils/errores-mongo.util';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CambiarNivelDto } from './dto/cambiar-nivel.dto';
-import { CompartirDto } from './dto/compartir.dt';
+import { CompartirDto } from './dto/compartir.dto';
 import { ConsultaRecursoDto } from './dto/consulta-recurso.dto';
 import { RecursoResumen } from './interfaces/comparticiones.interface';
 import { ComparticionesRepository } from './repository/comparticiones.repository';

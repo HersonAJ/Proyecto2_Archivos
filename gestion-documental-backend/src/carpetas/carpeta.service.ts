@@ -13,7 +13,6 @@ import { CarpetaDocument } from './entities/carpeta.entity';
 import { CarpetasRepository } from './repository/carpetas.repository';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { Types } from 'mongoose';
-import { getTextOfJSDocComment } from 'typescript';
 
 @Injectable()
 export class CarpetaService {

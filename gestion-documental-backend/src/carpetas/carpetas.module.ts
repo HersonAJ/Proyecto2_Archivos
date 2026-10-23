@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { MongooseModule, Schema } from "@nestjs/mongoose";
+import { MongooseModule } from "@nestjs/mongoose";
 import { ActividadesModule } from "../acciones/actividades.module";
 import { CarpetasController } from "./carpetas.controller";
 import { CarpetaService } from "./carpeta.service";
