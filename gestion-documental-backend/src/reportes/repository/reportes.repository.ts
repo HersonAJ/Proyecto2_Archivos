@@ -136,4 +136,32 @@ export class ReportesRepository {
             this.archivos.countDocuments(match).exec(),
         ]).then(([datos, total]) => ({ datos, total }));
     }
+
+    archivosConMasOperaciones(limite: number) {
+        return this.actividades
+            .aggregate<{
+                _id: Types.ObjectId;
+                total: number;
+                archivo: { _id: Types.ObjectId; nombre: string; tipo: string; tamano: number; propietario: Types.ObjectId };
+            }>([
+                { $match: { tipoRecurso: 'ARCHIVO' } },
+                { $group: { _id: '$recursos', total: { $sum: 1 } } },
+                { $sort: { total: -1 } },
+                { $limit: limite },
+                {
+                    $lookup: {
+                        from: 'archivos',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'archivo',
+                        pipeline: [
+                            { $match: { enPapelera: false } },
+                            { $project: { _id: 1, nombre: 1, tipo: 1, tamano: 1, propietario: 1 } },
+                        ],
+                    },
+                },
+                { $unwind: '$archivo' },
+            ])
+            .exec();
+    }
 }

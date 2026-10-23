@@ -8,6 +8,7 @@ import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-a
 import { ReportePorUsuarioDto } from './dto/reporte-usuario.dto';
 import { ReporteHistorialDto } from './dto/reporte-historial.dto';
 import { ReporteFechasDto } from './dto/reporte-fechas.dto';
+import { ReporteTopDto } from './dto/reporte-top.dto';
 
 @Controller('reportes')
 @Roles(RolUsuario.ADMIN)
@@ -56,4 +57,8 @@ export class ReportesController {
         return this.reportesService.archivosPorFecha(dto);
     }
     
+    @Get('archivos/mas-operaciones')
+    archivosConMasOperaciones(@Query() dto: ReporteTopDto) {
+        return this.reportesService.archivosConMasOperaciones(dto);
+    }
 }

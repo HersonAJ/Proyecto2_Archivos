@@ -9,6 +9,7 @@ import { Types } from 'mongoose';
 import { ActividadesRepository } from '../acciones/repository/actividades.repository';
 import { ReporteHistorialDto } from './dto/reporte-historial.dto';
 import { ReporteFechasDto } from './dto/reporte-fechas.dto';
+import { ReporteTopDto } from './dto/reporte-top.dto';
 
 @Injectable()
 export class ReportesService {
@@ -144,5 +145,17 @@ export class ReportesService {
     }),
     );
     return mapa;
+  }
+
+  async archivosConMasOperaciones(dto: ReporteTopDto) {
+    const filas = await this.reportesRepository.archivosConMasOperaciones(dto.limite);
+    return filas.map((f) => ({
+      _id: f._id.toString(),
+      nombre: f.archivo.tipo,
+      tipo: f.archivo.tipo,
+      tamano: f.archivo.tamano,
+      propietario: f.archivo.propietario.toString(),
+      total: f.total
+    }));
   }
 }
