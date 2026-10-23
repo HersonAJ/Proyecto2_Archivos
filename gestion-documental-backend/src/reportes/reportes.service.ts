@@ -6,12 +6,15 @@ import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-a
 import { TipoRecurso } from '../common/enums/tipo-recurso.enum';
 import { ComparticionesRepository } from '../comparticiones/repository/comparticiones.repository';
 import { Types } from 'mongoose';
+import { ActividadesRepository } from '../acciones/repository/actividades.repository';
+import { ReporteHistorialDto } from './dto/reporte-historial.dto';
 
 @Injectable()
 export class ReportesService {
   constructor(
     private readonly reportesRepository: ReportesRepository,
     private readonly comparticionesRepository: ComparticionesRepository,
+    private readonly actividadesRepositoru: ActividadesRepository,
   ) { }
 
   //reporte 10
@@ -84,6 +87,25 @@ export class ReportesService {
         },
       ];
     });
+  }
+
+  async historialActividades(dto: ReporteHistorialDto, actual: UsuarioAutenticado) {
+    const usuarioId = dto.usuarioId ?? actual.id;
+    if (actual.rol !== RolUsuario.ADMIN && usuarioId !== actual.id) {
+      throw new ForbiddenException('Solo puedes consultar tu propio historial');
+    }
+
+    const { datos, total } = await this.actividadesRepositoru.buscar(
+      {
+        usuario: usuarioId,
+        desde: dto.desde,
+        hasta: dto.hasta,
+      },
+      dto.pagina,
+      dto.limite,
+    );
+
+    return { datos, total, pagina: dto.pagina, limite: dto.limite };
   }
 
   private async recursosDe(

@@ -6,6 +6,7 @@ import { Query } from '@nestjs/common';
 import { UsuarioActual } from '../autenticacion/decorators/usuario-actual.decorator';
 import type { UsuarioAutenticado } from '../autenticacion/interfaces/solicitud-autenticada.interface';
 import { ReportePorUsuarioDto } from './dto/reporte-usuario.dto';
+import { ReporteHistorialDto } from './dto/reporte-historial.dto';
 
 @Controller('reportes')
 @Roles(RolUsuario.ADMIN)
@@ -38,6 +39,15 @@ export class ReportesController {
         @UsuarioActual() actual: UsuarioAutenticado,
     ) {
         return this.reportesService.comparticionesRecibidas(dto, actual);
+    }
+
+    @Get('actividad/historial')
+    @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
+    historialActividad(
+        @Query() dto: ReporteHistorialDto,
+        @UsuarioActual() actual: UsuarioAutenticado,
+    ) {
+        return this.reportesService.historialActividades(dto, actual);
     }
     
 }

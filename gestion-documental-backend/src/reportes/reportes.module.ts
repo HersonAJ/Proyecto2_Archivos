@@ -9,6 +9,7 @@ import { ReportesController } from './reportes.controller';
 import { ReportesService } from './reportes.service';
 import { ReportesRepository } from './repository/reportes.repository';
 import { ComparticionesModule } from '../comparticiones/comparticiones.module';
+import { ActividadesModule } from '../acciones/actividades.module';
 
 @Module({
     imports: [
@@ -18,7 +19,7 @@ import { ComparticionesModule } from '../comparticiones/comparticiones.module';
             { name: Carpeta.name, schema: CarpetaSchema },
             { name: Comparticion.name, schema: ComparticionSchema },
             { name: Usuario.name, schema: UsuarioSchema },
-        ]), ComparticionesModule,
+        ]), ComparticionesModule, ActividadesModule
     ],
     controllers: [ReportesController],
     providers: [ReportesService, ReportesRepository],

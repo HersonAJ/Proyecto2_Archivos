@@ -11,6 +11,6 @@ import { ActividadesRepository } from "./repository/actividades.repository";
     ],
     controllers: [ActividadesController],
     providers: [ActividadesService, ActividadesRepository],
-    exports: [ActividadesService],
+    exports: [ActividadesService, ActividadesRepository],
 })
 export class ActividadesModule {}
