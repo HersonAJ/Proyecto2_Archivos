@@ -30,5 +30,14 @@ export class ReportesController {
     ) {
     return this.reportesService.comparticionesOtorgadas(dto, actual);
     }
+
+    @Get('comparticiones/recibidas')
+    @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
+    comparticionesRecibidas(
+        @Query() dto: ReportePorUsuarioDto,
+        @UsuarioActual() actual: UsuarioAutenticado,
+    ) {
+        return this.reportesService.comparticionesRecibidas(dto, actual);
+    }
     
 }

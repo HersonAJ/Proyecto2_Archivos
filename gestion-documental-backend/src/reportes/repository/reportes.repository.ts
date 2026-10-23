@@ -76,4 +76,42 @@ export class ReportesRepository {
             ])
             .exec();
     }
+
+    // Reporte 8 recursos que un usuario ha recibido
+    comparticionesRecibidas(usuarioId: string, limite: number) {
+        return this.comparticiones
+            .aggregate<{
+                _id: Types.ObjectId;
+                tipoRecurso: string;
+                recurso: Types.ObjectId;
+                nivel: string;
+                compartidoEn: Date;
+                propietario: { _id: Types.ObjectId; nombre: string; correo: string };
+            }>([
+                { $match: { destinatario: new Types.ObjectId(usuarioId) } },
+                { $sort: { createdAt: -1 } },
+                { $limit: limite },
+                {
+                    $lookup: {
+                        from: 'usuarios',
+                        localField: 'propietario',
+                        foreignField: '_id',
+                        as: 'propietario',
+                        pipeline: [{ $project: { _id: 1, nombre: 1, correo: 1 } }],
+                    },
+                },
+                { $unwind: '$propietario' },
+                {
+                    $project: {
+                        _id: 1,
+                        tipoRecurso: 1,
+                        recurso: 1,
+                        nivel: 1,
+                        compartidoEn: '$createdAt',
+                        propietario: 1,
+                    },
+                },
+            ])
+            .exec();
+    }
 }

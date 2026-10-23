@@ -56,6 +56,36 @@ export class ReportesService {
     });
   }
 
+  // Reporte 8
+  async comparticionesRecibidas(dto: { usuarioId?: string }, actual: UsuarioAutenticado) {
+    const usuarioId = dto.usuarioId ?? actual.id;
+    if (actual.rol !== RolUsuario.ADMIN && usuarioId !== actual.id) {
+      throw new ForbiddenException('Solo puedes consultar tus propios recursos recibidos');
+    }
+
+    const comparticiones = await this.reportesRepository.comparticionesRecibidas(usuarioId, 500);
+    const recursos = await this.recursosDe(comparticiones);
+
+    return comparticiones.flatMap((c) => {
+      const recurso = recursos.get(c.recurso.toString());
+      if (!recurso) return [];
+      return [
+        {
+          _id: c._id.toString(),
+          tipoRecurso: c.tipoRecurso,
+          recurso,
+          propietario: {
+            _id: c.propietario._id.toString(),
+            nombre: c.propietario.nombre,
+            correo: c.propietario.correo,
+          },
+          nivel: c.nivel,
+          compartidoEn: c.compartidoEn,
+        },
+      ];
+    });
+  }
+
   private async recursosDe(
     comparticiones: { tipoRecurso: string; recurso: Types.ObjectId }[],
   ): Promise<Map<string, { _id: string; nombre: string; tipo?: string; tamano?: number }>> {

@@ -25,3 +25,21 @@ export interface ComparticionOtorgada {
   nivel: 'LECTURA' | 'COMENTAR' | 'EDICION';
   compartidoEn: string;
 }
+
+export interface ComparticionRecibida {
+  _id: string;
+  tipoRecurso: 'ARCHIVO' | 'CARPETA';
+  recurso: {
+    _id: string;
+    nombre: string;
+    tipo?: string;
+    tamano?: number;
+  };
+  propietario: {
+    _id: string;
+    nombre: string;
+    correo: string;
+  };
+  nivel: 'LECTURA' | 'COMENTAR' | 'EDICION';
+  compartidoEn: string;
+}

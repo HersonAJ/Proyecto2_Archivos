@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../core/service/api.service';
-import { OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada } from '../models/reporte.model';
+import { OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada, ComparticionRecibida } from '../models/reporte.model';
 
 @Injectable({ providedIn: 'root' })
 export class ReportesService extends ApiService {
@@ -15,5 +15,10 @@ export class ReportesService extends ApiService {
   comparticionesOtorgadas(usuarioId?: string) {
     const params = usuarioId ? `?usuarioId=${usuarioId}` : '';
     return this.http.get<ComparticionOtorgada[]>(`${this.baseUrl}/reportes/comparticiones/otorgadas${params}`);
+  }
+
+  comparticionesRecibidas(usuarioId?: string) {
+    const params = usuarioId ? `?usuarioId=${usuarioId}` : '';
+    return this.http.get<ComparticionRecibida[]>(`${this.baseUrl}/reportes/comparticiones/recibidas${params}`);
   }
 }
