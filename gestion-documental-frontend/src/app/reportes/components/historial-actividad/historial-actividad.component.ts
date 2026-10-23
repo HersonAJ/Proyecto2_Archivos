@@ -55,7 +55,7 @@ export class HistorialActividadComponent {
     // Selector de admin
     protected readonly usuarios = signal<Usuario[]>([]);
 
-    // Paginación
+    // Paginacion
     protected readonly pagina = signal(1);
     protected readonly limite = signal(20);
 

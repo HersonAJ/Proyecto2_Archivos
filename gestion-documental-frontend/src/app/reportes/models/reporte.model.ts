@@ -62,3 +62,19 @@ export interface HistorialActividadRespuesta {
   pagina: number;
   limite: number;
 }
+
+export interface ArchivoEnRango {
+  _id: string;
+  nombre: string;
+  tipo: string;
+  tamano: number;
+  propietario: string;
+  createdAt: string;
+}
+
+export interface ArchivosPorFechasRespuesta {
+  datos: ArchivoEnRango[];
+  total: number;
+  pagina: number;
+  limite: number;
+}

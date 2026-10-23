@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../core/service/api.service';
-import { OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada, ComparticionRecibida,
-  HistorialActividadRespuesta
- } from '../models/reporte.model';
+import {
+  OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada, ComparticionRecibida,
+  HistorialActividadRespuesta, ArchivosPorFechasRespuesta
+} from '../models/reporte.model';
 
 @Injectable({ providedIn: 'root' })
 export class ReportesService extends ApiService {
@@ -40,6 +41,24 @@ export class ReportesService extends ApiService {
     if (params.hasta) query['hasta'] = params.hasta;
     return this.http.get<HistorialActividadRespuesta>(
       `${this.baseUrl}/reportes/actividad/historial`,
+      { params: query },
+    );
+  }
+
+  archivosPorFechas(params: {
+    desde?: string | null;
+    hasta?: string | null;
+    pagina: number;
+    limite: number;
+  }) {
+    const query: Record<string, string> = {
+      pagina: String(params.pagina),
+      limite: String(params.limite),
+    };
+    if (params.desde) query['desde'] = params.desde;
+    if (params.hasta) query['hasta'] = params.hasta;
+    return this.http.get<ArchivosPorFechasRespuesta>(
+      `${this.baseUrl}/reportes/archivos/por-fechas`,
       { params: query },
     );
   }

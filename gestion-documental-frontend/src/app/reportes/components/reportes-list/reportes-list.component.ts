@@ -58,6 +58,13 @@ export class ReportesListComponent {
       ruta: '/reportes/actividad-historial',
       roles: ['ADMIN', 'USUARIO'],
     },
+    {
+      titulo: 'Archivos por rango de fechas',
+      descripcion: 'Archivos almacenados dentro de un rango de fechas.',
+      icono: 'date_range',
+      ruta: '/reportes/archivos-por-fechas',
+      roles: ['ADMIN'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {

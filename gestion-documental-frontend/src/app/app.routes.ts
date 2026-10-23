@@ -14,6 +14,7 @@ import { ArchivosPorTipoComponent } from './reportes/components/archivos-por-tip
 import { ComparticionesOtorgadasComponent } from './reportes/components/comparticiones-otorgadas/comparticiones-otorgadas.component';
 import { ComparticionesRecibidasComponent } from './reportes/components/comparticiones-recibidas/comparticiones-recibidas.component';
 import { HistorialActividadComponent } from './reportes/components/historial-actividad/historial-actividad.component';
+import { ArchivosPorFechasComponent } from './reportes/components/archivos-por-fechas/archivos-por-fechas.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
@@ -39,6 +40,7 @@ export const routes: Routes = [
       { path: 'reportes/comparticiones-otorgadas', component: ComparticionesOtorgadasComponent },
       { path: 'reportes/comparticiones-recibidas', component: ComparticionesRecibidasComponent },
       { path: 'reportes/actividad-historial', component: HistorialActividadComponent },
+      { path: 'reportes/archivos-por-fechas', component: ArchivosPorFechasComponent, canActivate: [rolGuard(['ADMIN'])] },
 
       { path: '', redirectTo: 'carpetas', pathMatch: 'full' },
     ],

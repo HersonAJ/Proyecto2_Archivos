@@ -1,0 +1,77 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div class="cabecera-izquierda">
+      <button mat-icon-button (click)="volver()" aria-label="Volver a reportes">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="titulo-pagina">Archivos por rango de fechas</h1>
+        <p class="nota">Archivos almacenados dentro de un rango de fechas.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" (click)="buscar()" [disabled]="cargando()">
+      <mat-icon>search</mat-icon>
+      Buscar
+    </button>
+
+    <button mat-stroked-button (click)="limpiar()" [disabled]="cargando()">
+      <mat-icon>clear</mat-icon>
+      Limpiar
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (archivos().length === 0) {
+    <p class="vacio">No hay archivos en ese rango de fechas.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th class="numerico">Tamaño</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of archivos(); track a._id) {
+            <tr>
+              <td>{{ a.nombre }}</td>
+              <td>{{ a.tipo }}</td>
+              <td class="numerico">{{ a.tamano | tamano }}</td>
+              <td>{{ a.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageSize]="limite()"
+      [pageIndex]="pagina() - 1"
+      [pageSizeOptions]="[10, 20, 50, 100]"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons
+    />
+  }
+</div>
