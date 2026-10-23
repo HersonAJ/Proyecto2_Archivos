@@ -43,3 +43,22 @@ export interface ComparticionRecibida {
   nivel: 'LECTURA' | 'COMENTAR' | 'EDICION';
   compartidoEn: string;
 }
+
+export interface HistorialActividad {
+  _id: string;
+  usuario: string;
+  propietarioRecurso: string;
+  accion: string;
+  tipoRecurso: 'ARCHIVO' | 'CARPETA';
+  recurso: string;
+  nombreRecurso: string;
+  detalles: Record<string, unknown>;
+  fecha: string;
+}
+
+export interface HistorialActividadRespuesta {
+  datos: HistorialActividad[];
+  total: number;
+  pagina: number;
+  limite: number;
+}

@@ -51,6 +51,13 @@ export class ReportesListComponent {
       ruta: '/reportes/comparticiones-recibidas',
       roles: ['ADMIN', 'USUARIO'],
     },
+    {
+      titulo: 'Historial de actividad',
+      descripcion: 'Actividades de un usuario dentro de un rango de fechas.',
+      icono: 'history',
+      ruta: '/reportes/actividad-historial',
+      roles: ['ADMIN', 'USUARIO'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {
