@@ -11,6 +11,7 @@ import { ArchivosModule } from './archivos/archivos.module';
 import { PapeleraModule } from './papelera/papelera.module';
 import { ComparticionesModule } from './comparticiones/comparticiones.module';
 import { ComentariosModule } from './comentarios/comentarios.module';
+import { ReportesModule } from './reportes/reportes.module';
 
 @Module({
   imports: [
@@ -22,9 +23,9 @@ import { ComentariosModule } from './comentarios/comentarios.module';
       }),
     }),
     UsuariosModule, AutenticacionModule, ActividadesModule, CarpetasModule, ArchivosModule, PapeleraModule, ComparticionesModule,
-    ComentariosModule,
+    ComentariosModule, ReportesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
