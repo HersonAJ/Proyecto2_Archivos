@@ -1,0 +1,20 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div>
+      <h1 class="titulo-pagina">Reportes</h1>
+      <p class="nota">Selecciona un reporte para ver su información.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+    @for (reporte of reportes; track reporte.ruta) {
+      <a class="card" [routerLink]="reporte.ruta">
+        <mat-icon class="card-icono">{{ reporte.icono }}</mat-icon>
+        <div class="card-texto">
+          <h2 class="card-titulo">{{ reporte.titulo }}</h2>
+          <p class="card-descripcion">{{ reporte.descripcion }}</p>
+        </div>
+      </a>
+    }
+  </div>
+</div>
