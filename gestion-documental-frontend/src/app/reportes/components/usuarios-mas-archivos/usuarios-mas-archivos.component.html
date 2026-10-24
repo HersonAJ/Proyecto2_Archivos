@@ -1,0 +1,55 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div class="cabecera-izquierda">
+      <button mat-icon-button (click)="volver()" aria-label="Volver a reportes">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="titulo-pagina">Usuarios con más archivos</h1>
+        <p class="nota">Usuarios con mayor cantidad de archivos almacenados.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Mostrar</mat-label>
+      <mat-select [value]="limite()" (selectionChange)="cambiarLimite($event.value)">
+        @for (opcion of opcionesLimite; track opcion) {
+          <mat-option [value]="opcion">Top {{ opcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (usuarios().length === 0) {
+    <p class="vacio">No hay usuarios con archivos.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Correo</th>
+            <th class="numerico">Archivos</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of usuarios(); track u._id) {
+            <tr>
+              <td>{{ u.nombre }}</td>
+              <td>{{ u.correo }}</td>
+              <td class="numerico">{{ u.total }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

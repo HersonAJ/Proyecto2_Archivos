@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../../core/service/api.service';
 import {
   OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada, ComparticionRecibida,
-  HistorialActividadRespuesta, ArchivosPorFechasRespuesta, ArchivoConOperaciones, CarpetaConArchivos
+  HistorialActividadRespuesta, ArchivosPorFechasRespuesta, ArchivoConOperaciones, CarpetaConArchivos, UsuarioConArchivos
 } from '../models/reporte.model';
 
 @Injectable({ providedIn: 'root' })
@@ -80,6 +80,13 @@ export class ReportesService extends ApiService {
   carpetasConMasArchivos(limite: number) {
     return this.http.get<CarpetaConArchivos[]>(
       `${this.baseUrl}/reportes/carpetas/mas-archivos`,
+      { params: { limite: String(limite) } },
+    );
+  }
+
+  usuariosConMasArchivos(limite: number) {
+    return this.http.get<UsuarioConArchivos[]>(
+      `${this.baseUrl}/reportes/usuarios/top-archivos`,
       { params: { limite: String(limite) } },
     );
   }

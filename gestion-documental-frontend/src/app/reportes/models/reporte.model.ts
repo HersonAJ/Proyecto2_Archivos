@@ -94,3 +94,10 @@ export interface CarpetaConArchivos {
   propietario: string;
   total: number;
 }
+
+export interface UsuarioConArchivos {
+  _id: string;
+  nombre: string;
+  correo: string;
+  total: number;
+}

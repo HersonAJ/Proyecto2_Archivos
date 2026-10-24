@@ -86,6 +86,13 @@ export class ReportesListComponent {
       ruta: '/reportes/carpetas-mas-archivos',
       roles: ['ADMIN'],
     },
+    {
+      titulo: 'Usuarios con más archivos',
+      descripcion: 'Usuarios con mayor cantidad de archivos almacenados.',
+      icono: 'group',
+      ruta: '/reportes/usuarios-mas-archivos',
+      roles: ['ADMIN'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {
