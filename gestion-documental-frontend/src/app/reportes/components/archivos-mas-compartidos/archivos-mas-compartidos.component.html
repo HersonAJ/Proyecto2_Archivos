@@ -1,0 +1,57 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div class="cabecera-izquierda">
+      <button mat-icon-button (click)="volver()" aria-label="Volver a reportes">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="titulo-pagina">Archivos con más usuarios</h1>
+        <p class="nota">Archivos compartidos con mayor cantidad de usuarios.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Mostrar</mat-label>
+      <mat-select [value]="limite()" (selectionChange)="cambiarLimite($event.value)">
+        @for (opcion of opcionesLimite; track opcion) {
+          <mat-option [value]="opcion">Top {{ opcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (archivos().length === 0) {
+    <p class="vacio">No hay archivos compartidos.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th class="numerico">Tamaño</th>
+            <th class="numerico">Usuarios</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of archivos(); track a._id) {
+            <tr>
+              <td>{{ a.nombre }}</td>
+              <td>{{ a.tipo }}</td>
+              <td class="numerico">{{ a.tamano | tamano }}</td>
+              <td class="numerico">{{ a.usuarios }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

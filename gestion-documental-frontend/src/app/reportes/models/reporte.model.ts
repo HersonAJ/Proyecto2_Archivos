@@ -101,3 +101,11 @@ export interface UsuarioConArchivos {
   correo: string;
   total: number;
 }
+
+export interface ArchivoCompartido {
+  _id: string;
+  nombre: string;
+  tipo: string;
+  tamano: number;
+  usuarios: number;
+}

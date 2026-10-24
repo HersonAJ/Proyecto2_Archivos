@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../../core/service/api.service';
 import {
   OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada, ComparticionRecibida,
-  HistorialActividadRespuesta, ArchivosPorFechasRespuesta, ArchivoConOperaciones, CarpetaConArchivos, UsuarioConArchivos
+  HistorialActividadRespuesta, ArchivosPorFechasRespuesta, ArchivoConOperaciones, CarpetaConArchivos, UsuarioConArchivos,
+  ArchivoCompartido
 } from '../models/reporte.model';
 
 @Injectable({ providedIn: 'root' })
@@ -94,6 +95,13 @@ export class ReportesService extends ApiService {
   usuariosConMasCompartidos(limite: number) {
     return this.http.get<UsuarioConArchivos[]>(
       `${this.baseUrl}/reportes/usuarios/mas-compartidos`,
+      { params: { limite: String(limite) } },
+    );
+  }
+
+  archivosMasCompartidos(limite: number) {
+    return this.http.get<ArchivoCompartido[]>(
+      `${this.baseUrl}/reportes/archivos/mas-compartidos`,
       { params: { limite: String(limite) } },
     );
   }

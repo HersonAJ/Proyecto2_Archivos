@@ -20,6 +20,7 @@ import { ArchivosNuncaCompartidosComponent } from './reportes/components/archivo
 import { CarpetasMasArchivosComponent } from './reportes/components/carpetas-mas-archivos/carpetas-mas-archivos.component';
 import { UsuariosMasArchivosComponent } from './reportes/components/usuarios-mas-archivos/usuarios-mas-archivos.component';
 import { UsuariosMasCompartidosComponent } from './reportes/components/usuarios-mas-compartidos/usuarios-mas-compartidos.component';
+import { ArchivosMasCompartidosComponent } from './reportes/components/archivos-mas-compartidos/archivos-mas-compartidos.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
@@ -51,6 +52,7 @@ export const routes: Routes = [
       { path: 'reportes/carpetas-mas-archivos', component: CarpetasMasArchivosComponent, canActivate: [rolGuard(['ADMIN'])] },
       { path: 'reportes/usuarios-mas-archivos', component: UsuariosMasArchivosComponent, canActivate: [rolGuard(['ADMIN'])] },
       { path: 'reportes/usuarios-mas-compartidos', component: UsuariosMasCompartidosComponent, canActivate: [rolGuard(['ADMIN'])] },
+      { path: 'reportes/archivos-mas-compartidos', component: ArchivosMasCompartidosComponent, canActivate: [rolGuard(['ADMIN'])] },
 
       { path: '', redirectTo: 'carpetas', pathMatch: 'full' },
     ],
