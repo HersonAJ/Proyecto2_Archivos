@@ -1,7 +1,59 @@
 # Proyecto2_Archivos
 proyecto No.2 del curso de archivos SS 2026
 
-carga de archivos iniciales
+Sistema de gestión documental con backend NestJS + MongoDB y frontend Angular.
+
+## Requisitos
+
+- Node.js 20+ 
+- Docker y Docker Compose
+- Angular CLI (`npm install -g @angular/cli`)
+
+## Arranque
+
+### 1. Levantar MongoDB
+
+Desde la raíz del repo:
+
+```bash
+docker compose up -d
+```
+
+El contenedor usa el puerto **27018** en tu PC (para no chocar con un MongoDB global en 27017). mongo-express queda en `http://localhost:8081`.
+
+Verifica que está corriendo:
+
+```bash
+docker compose ps
+```
+
+### 2. Backend
+
+```bash
+cd gestion-documental-backend
+npm install
+cp .env.example .env    
+npm run seed            # siembra la BD (solo si está vacía)
+npm run start:dev       # API en http://localhost:3000/api
+```
+
+> El `.env` ya apunta a `localhost:27018`. El seed necesita el backend **detenido** (abre su propio contexto Nest, siembra y se cierra).
+
+### 3. Frontend (otra terminal)
+
+```bash
+cd gestion-documental-frontend
+npm install
+ng serve                # app en http://localhost:4200
+```
+
+### 4. Entrar
+
+| Correo | Contraseña | Rol |
+|---|---|---|
+| admin@correo.com | admin123 | ADMIN |
+| ana@correo.com | secreto123 | USUARIO |
+
 ## Carga inicial de datos (seed)
 
 El proyecto incluye un script de siembra que crea usuarios, carpetas, archivos
@@ -56,3 +108,17 @@ contenidos de GridFS (`contenidos.files` y `contenidos.chunks`) antes de sembrar
 | carlos@correo.com  | secreto123   | USUARIO |                    |
 | sofia@correo.com   | secreto123   | USUARIO |                    |
 | pedro@correo.com   | secreto123   | USUARIO | Queda **inactivo** |
+
+## Comandos útiles
+
+- **Detener MongoDB:** `docker compose down`
+- **Borrar también los datos:** `docker compose down -v`
+- **Ver logs de Mongo:** `docker compose logs -f mongodb`
+- **mongosh:** `docker exec -it gestion-documental-mongodb mongosh -u admin -p admin123 --authenticationDatabase admin gestion_documental_db`
+- **mongo-express:** `http://localhost:8081` (admin/admin123)
+
+## Notas
+
+- El contenido de los archivos se guarda en **GridFS** (colecciones `contenidos.files` y `contenidos.chunks`). El documento de `archivos` solo guarda una referencia (`contenidoId`).
+- Los archivos eliminados van a la **papelera** y no se borran hasta que se eliminan definitivamente o se vacía la papelera.
+- Si tienes MongoDB global en el puerto 27017, **no hay conflicto**: el Docker usa 27018 en el host.
