@@ -164,4 +164,59 @@ export class ReportesRepository {
             ])
             .exec();
     }
+
+    archivosNuncaCompartidos(pagina: number, limite: number) {
+        return this.archivos
+            .aggregate<{
+                datos: {
+                    _id: Types.ObjectId;
+                    nombre: string;
+                    tipo: string;
+                    tamano: number;
+                    propietario: Types.ObjectId;
+                    createdAt: Date;
+                }[];
+                total: { n: number }[];
+            }>([
+                { $match: { enPapelera: false } },
+                {
+                    $lookup: {
+                        from: 'comparticiones',
+                        let: { archivoId: '$_id' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ['$recurso', '$$archivoId'] },
+                                            { $eq: ['$tipoRecurso', 'ARCHIVO'] },
+                                        ],
+                                    },
+                                },
+                            },
+                            { $limit: 1 },
+                            { $project: { _id: 1 } },
+                        ],
+                        as: 'comparticiones',
+                    },
+                },
+                { $match: { comparticiones: { $size: 0 } } },
+                { $project: { comparticiones: 0 } },
+                { $sort: { createdAt: -1 } },
+                {
+                    $facet: {
+                        datos: [
+                            { $skip: (pagina - 1) * limite },
+                            { $limit: limite },
+                        ],
+                        total: [{ $count: 'n' }],
+                    },
+                },
+            ])
+            .exec()
+            .then(([resultado]) => ({
+                datos: resultado?.datos ?? [],
+                total: resultado?.total[0]?.n ?? 0,
+            }));
+    }
 }

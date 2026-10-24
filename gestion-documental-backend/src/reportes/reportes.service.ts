@@ -158,4 +158,12 @@ export class ReportesService {
       total: f.total
     }));
   }
+
+  async archivosNuncaCompartidos(dto: ReporteFechasDto) {
+    const { datos, total } = await this.reportesRepository.archivosNuncaCompartidos(
+      dto.pagina,
+      dto.limite,
+    );
+    return { datos, total, pagina: dto.pagina, limite: dto.limite };
+  }
 }

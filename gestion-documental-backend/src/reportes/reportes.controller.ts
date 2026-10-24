@@ -28,10 +28,10 @@ export class ReportesController {
     @Get('comparticiones/otorgadas')
     @Roles(RolUsuario.ADMIN, RolUsuario.USUARIO)
     comparticionesOtorgadas(
-    @Query() dto: ReportePorUsuarioDto,
-    @UsuarioActual() actual: UsuarioAutenticado,
+        @Query() dto: ReportePorUsuarioDto,
+        @UsuarioActual() actual: UsuarioAutenticado,
     ) {
-    return this.reportesService.comparticionesOtorgadas(dto, actual);
+        return this.reportesService.comparticionesOtorgadas(dto, actual);
     }
 
     @Get('comparticiones/recibidas')
@@ -56,9 +56,14 @@ export class ReportesController {
     archivosPorFechas(@Query() dto: ReporteFechasDto) {
         return this.reportesService.archivosPorFecha(dto);
     }
-    
+
     @Get('archivos/mas-operaciones')
     archivosConMasOperaciones(@Query() dto: ReporteTopDto) {
         return this.reportesService.archivosConMasOperaciones(dto);
+    }
+
+    @Get('archivos/nunca-compartidos')
+    archivosNuncaCompartidos(@Query() dto: ReporteFechasDto) {
+        return this.reportesService.archivosNuncaCompartidos(dto);
     }
 }
