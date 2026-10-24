@@ -69,4 +69,11 @@ export class ReportesService extends ApiService {
       { params: { limite: String(limite) } },
     );
   }
+
+  archivosNuncaCompartidos(params: { pagina: number; limite: number }) {
+    return this.http.get<ArchivosPorFechasRespuesta>(
+      `${this.baseUrl}/reportes/archivos/nunca-compartidos`,
+      { params: { pagina: String(params.pagina), limite: String(params.limite) } },
+    );
+  }
 }

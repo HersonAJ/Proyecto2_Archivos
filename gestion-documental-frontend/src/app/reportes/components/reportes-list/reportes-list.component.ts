@@ -72,6 +72,13 @@ export class ReportesListComponent {
       ruta: '/reportes/archivos-mas-operaciones',
       roles: ['ADMIN'],
     },
+    {
+      titulo: 'Archivos nunca compartidos',
+      descripcion: 'Archivos activos que no han sido compartidos con ningún usuario.',
+      icono: 'lock',
+      ruta: '/reportes/archivos-nunca-compartidos',
+      roles: ['ADMIN'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {
