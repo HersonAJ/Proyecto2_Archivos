@@ -13,7 +13,7 @@ export class UsuariosService {
   constructor(private readonly usuariosRepository: UsuariosRepository) { }
 
   async create(dto: CreateUsuarioDto) {
-    const password = await bcrypt.hash(dto.password, 10);
+    const password = await bcrypt.hash(dto.password, 12); //mejor cost para mas seguridad
     try {
       return await this.usuariosRepository.crear({ ...dto, password });
     } catch (error) {

@@ -21,10 +21,12 @@ import { CarpetasMasArchivosComponent } from './reportes/components/carpetas-mas
 import { UsuariosMasArchivosComponent } from './reportes/components/usuarios-mas-archivos/usuarios-mas-archivos.component';
 import { UsuariosMasCompartidosComponent } from './reportes/components/usuarios-mas-compartidos/usuarios-mas-compartidos.component';
 import { ArchivosMasCompartidosComponent } from './reportes/components/archivos-mas-compartidos/archivos-mas-compartidos.component';
+import { RegistroComponent } from './registro/registro.component';
 import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'registro', component: RegistroComponent },
 
   {
     // El guard se aplica una vez al shell y protege todas sus rutas hijas

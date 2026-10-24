@@ -5,21 +5,41 @@
       <mat-card-subtitle>Inicia sesión para continuar</mat-card-subtitle>
     </mat-card-header>
 
+    @if (mensaje()) {
+      <p class="exito" role="status">{{ mensaje() }}</p>
+    }
+
     <form [formGroup]="formulario" (ngSubmit)="ingresar()">
       <mat-card-content>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Correo</mat-label>
           <input matInput type="email" formControlName="correo" autocomplete="username" />
           @if (formulario.controls.correo.hasError('required')) {
             <mat-error>El correo es obligatorio</mat-error>
           } @else if (formulario.controls.correo.hasError('email')) {
-            <mat-error>El correo no es válido</mat-error>
+            <mat-error>El formato del correo no es valido</mat-error>
+          } @else if (formulario.controls.correo.hasError('maxlength')) {
+            <mat-error>Máximo 100 caracteres</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Contraseña</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          <input
+            matInput
+            [type]="mostrarPassword() ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="alternarPassword()"
+            [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <mat-icon>{{ mostrarPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
           @if (formulario.controls.password.hasError('required')) {
             <mat-error>La contraseña es obligatoria</mat-error>
           }
@@ -32,6 +52,7 @@
 
       <mat-card-actions>
         <button mat-flat-button type="submit" [disabled]="enviando()">Entrar</button>
+        <a mat-button routerLink="/registro">Crear cuenta</a>
       </mat-card-actions>
     </form>
   </mat-card>

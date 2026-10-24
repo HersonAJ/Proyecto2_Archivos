@@ -1,0 +1,86 @@
+<div class="contenedor">
+  <mat-card class="tarjeta">
+    <mat-card-header>
+      <mat-card-title>Crear cuenta</mat-card-title>
+      <mat-card-subtitle>Regístrate para empezar a usar la plataforma</mat-card-subtitle>
+    </mat-card-header>
+
+    <form [formGroup]="formulario" (ngSubmit)="registrar()">
+      <mat-card-content>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Nombre</mat-label>
+          <input matInput type="text" formControlName="nombre" autocomplete="name" />
+          @if (formulario.controls.nombre.hasError('required')) {
+            <mat-error>El nombre es obligatorio</mat-error>
+          } @else if (formulario.controls.nombre.hasError('minlength')) {
+            <mat-error>Mínimo 2 caracteres</mat-error>
+          } @else if (formulario.controls.nombre.hasError('maxlength')) {
+            <mat-error>Máximo 100 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Correo</mat-label>
+          <input matInput type="email" formControlName="correo" autocomplete="email" />
+          @if (formulario.controls.correo.hasError('required')) {
+            <mat-error>El correo es obligatorio</mat-error>
+          } @else if (formulario.controls.correo.hasError('email')) {
+            <mat-error>El formato del correo no es válido</mat-error>
+          } @else if (formulario.controls.correo.hasError('maxlength')) {
+            <mat-error>Máximo 100 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="mostrarPassword() ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="alternarPassword()"
+            [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <mat-icon>{{ mostrarPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (formulario.controls.password.hasError('required')) {
+            <mat-error>La contraseña es obligatoria</mat-error>
+          } @else if (formulario.controls.password.hasError('minlength')) {
+            <mat-error>Mínimo 6 caracteres</mat-error>
+          } @else if (formulario.controls.password.hasError('maxlength')) {
+            <mat-error>Máximo 72 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Confirmar contraseña</mat-label>
+          <input
+            matInput
+            [type]="mostrarPassword() ? 'text' : 'password'"
+            formControlName="confirmarPassword"
+            autocomplete="new-password"
+          />
+          @if (formulario.controls.confirmarPassword.hasError('required')) {
+            <mat-error>Confirma tu contraseña</mat-error>
+          } @else if (formulario.hasError('passwordsDistintas')) {
+            <mat-error>Las contraseñas no coinciden</mat-error>
+          }
+        </mat-form-field>
+
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
+        }
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-flat-button type="submit" [disabled]="enviando()">Crear cuenta</button>
+        <a mat-button routerLink="/login">Ya tengo cuenta</a>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</div>

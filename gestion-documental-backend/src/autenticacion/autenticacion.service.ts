@@ -4,6 +4,9 @@ import * as bcrypt from 'bcryptjs';
 import { UsuariosService } from "../usuarios/usuarios.service";
 import { LoginDto } from "./dto/login.dto";
 import { JwtPayload } from "./interfaces/jwt-payload.interface";
+import { BadRequestException } from "@nestjs/common";
+import { RegistroDto } from "./dto/registro.dto";
+import { RolUsuario } from "../common/enums/rol-usuario.enum";
 
 @Injectable()
 export class AutenticacionService {
@@ -33,6 +36,26 @@ export class AutenticacionService {
                 correo: usuario.correo,
                 rol: usuario.rol,
             },
+        };
+    }
+
+    async registro(dto: RegistroDto) {
+        if (dto.password !== dto.confirmarPassword){
+            throw new BadRequestException('Las contraseñas con coinciden');
+        }
+
+        const usuario = await this.usuarioService.create({
+            nombre: dto.nombre,
+            correo: dto.correo,
+            password: dto.password,
+            rol: RolUsuario.USUARIO,
+        });
+
+        return {
+            id: usuario.id,
+            nombre: usuario.nombre,
+            correo: usuario.correo,
+            rol: usuario.rol,
         };
     }
 }

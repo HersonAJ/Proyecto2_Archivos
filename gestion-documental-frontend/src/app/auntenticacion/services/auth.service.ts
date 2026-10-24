@@ -28,6 +28,13 @@ export class AuthService extends ApiService {
       );
   }
 
+  registro(datos: { nombre: string; correo: string; password: string; confirmarPassword: string }) {
+    return this.http.post<{ id: string; nombre: string; correo: string; rol: string }>(
+      `${this.baseUrl}/auth/registro`,
+      datos,
+    );
+  }
+
   cerrarSesion() {
     this.sesion.set(null);
     localStorage.removeItem(CLAVE_SESION);
