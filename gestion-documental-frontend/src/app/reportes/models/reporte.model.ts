@@ -87,3 +87,10 @@ export interface ArchivoConOperaciones {
   propietario: string;
   total: number;
 }
+
+export interface CarpetaConArchivos {
+  _id: string;
+  nombre: string;
+  propietario: string;
+  total: number;
+}

@@ -1,0 +1,53 @@
+<div class="contenido">
+  <header class="cabecera">
+    <div class="cabecera-izquierda">
+      <button mat-icon-button (click)="volver()" aria-label="Volver a reportes">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="titulo-pagina">Carpetas con más archivos</h1>
+        <p class="nota">Carpetas activas con mayor cantidad de archivos dentro.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Mostrar</mat-label>
+      <mat-select [value]="limite()" (selectionChange)="cambiarLimite($event.value)">
+        @for (opcion of opcionesLimite; track opcion) {
+          <mat-option [value]="opcion">Top {{ opcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (cargando()) {
+    <div class="centrado">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (carpetas().length === 0) {
+    <p class="vacio">No hay carpetas con archivos.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Carpeta</th>
+            <th class="numerico">Archivos</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of carpetas(); track c._id) {
+            <tr>
+              <td>{{ c.nombre }}</td>
+              <td class="numerico">{{ c.total }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

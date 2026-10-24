@@ -79,6 +79,13 @@ export class ReportesListComponent {
       ruta: '/reportes/archivos-nunca-compartidos',
       roles: ['ADMIN'],
     },
+    {
+      titulo: 'Carpetas con más archivos',
+      descripcion: 'Carpetas activas con mayor cantidad de archivos dentro.',
+      icono: 'folder',
+      ruta: '/reportes/carpetas-mas-archivos',
+      roles: ['ADMIN'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {
