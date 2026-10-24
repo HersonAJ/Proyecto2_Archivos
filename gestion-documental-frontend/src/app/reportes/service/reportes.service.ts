@@ -90,4 +90,11 @@ export class ReportesService extends ApiService {
       { params: { limite: String(limite) } },
     );
   }
+
+  usuariosConMasCompartidos(limite: number) {
+    return this.http.get<UsuarioConArchivos[]>(
+      `${this.baseUrl}/reportes/usuarios/mas-compartidos`,
+      { params: { limite: String(limite) } },
+    );
+  }
 }

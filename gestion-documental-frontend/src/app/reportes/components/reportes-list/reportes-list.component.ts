@@ -93,6 +93,13 @@ export class ReportesListComponent {
       ruta: '/reportes/usuarios-mas-archivos',
       roles: ['ADMIN'],
     },
+    {
+      titulo: 'Usuarios con más compartidos',
+      descripcion: 'Usuarios con mayor cantidad de recursos compartidos con otros.',
+      icono: 'group_add',
+      ruta: '/reportes/usuarios-mas-compartidos',
+      roles: ['ADMIN'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {
