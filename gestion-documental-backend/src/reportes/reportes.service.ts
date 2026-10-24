@@ -196,4 +196,15 @@ export class ReportesService {
       total: f.total,
     }));
   }
+
+  async archivosMasCompartidos(dto: ReporteTopDto) {
+    const filas = await this.reportesRepository.archivosMasCompartidos(dto.limite);
+    return filas.map((f) => ({
+      _id: f._id.toString(),
+      nombre: f.archivo.nombre,
+      tipo: f.archivo.tipo,
+      tamano: f.archivo.tamano,
+      usuarios: f.usuarios,
+    }));
+  }
 }

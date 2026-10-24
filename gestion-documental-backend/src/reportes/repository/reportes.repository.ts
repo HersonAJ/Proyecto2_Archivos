@@ -296,4 +296,32 @@ export class ReportesRepository {
             ])
             .exec();
     }
+
+    archivosMasCompartidos(limite: number) {
+        return this.comparticiones
+            .aggregate<{
+                _id: Types.ObjectId;
+                usuarios: number;
+                archivo: { _id: Types.ObjectId; nombre: string; tipo: string; tamano: number };
+            }>([
+                { $match: { tipoRecurso: 'ARCHIVO' } },
+                { $group: { _id: '$recurso', usuarios: { $sum: 1 } } },
+                { $sort: { usuarios: -1 } },
+                { $limit: limite },
+                {
+                    $lookup: {
+                        from: 'archivos',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'archivo',
+                        pipeline: [
+                            { $match: { enPapelera: false } },
+                            { $project: { _id: 1, nombre: 1, tipo: 1, tamano: 1 } },
+                        ],
+                    },
+                },
+                { $unwind: '$archivo' },
+            ])
+            .exec();
+    }
 }

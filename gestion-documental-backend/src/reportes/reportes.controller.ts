@@ -81,4 +81,9 @@ export class ReportesController {
     usuariosConMasCompartidos(@Query() dto: ReporteTopDto) {
         return this.reportesService.usuariosConMasCompartidos(dto);
     }
+
+    @Get('archivos/mas-compartidos')
+    archivosMasCompartidos(@Query() dto: ReporteTopDto) {
+        return this.reportesService.archivosMasCompartidos(dto);
+    }
 }
