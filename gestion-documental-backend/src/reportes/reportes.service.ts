@@ -186,4 +186,14 @@ export class ReportesService {
       total: f.total,
     }));
   }
+
+  async usuariosConMasCompartidos(dto: ReporteTopDto) {
+    const filas = await this.reportesRepository.usuariosConMasCompartidos(dto.limite);
+    return filas.map((f) => ({
+      _id: f._id.toString(),
+      nombre: f.usuario.nombre,
+      correo: f.usuario.correo,
+      total: f.total,
+    }));
+  }
 }

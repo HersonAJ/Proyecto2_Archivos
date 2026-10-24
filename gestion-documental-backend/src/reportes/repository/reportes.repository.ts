@@ -272,4 +272,28 @@ export class ReportesRepository {
             ])
             .exec();
     }
+
+    usuariosConMasCompartidos(limite: number) {
+        return this.comparticiones
+            .aggregate<{
+                _id: Types.ObjectId;
+                total: number;
+                usuario: { _id: Types.ObjectId; nombre: string; correo: string };
+            }>([
+                { $group: { _id: '$propietario', total: { $sum: 1 } } },
+                { $sort: { total: -1 } },
+                { $limit: limite },
+                {
+                    $lookup: {
+                        from: 'usuarios',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'usuario',
+                        pipeline: [{ $project: { _id: 1, nombre: 1, correo: 1 } }],
+                    },
+                },
+                { $unwind: '$usuario' },
+            ])
+            .exec();
+    }
 }
