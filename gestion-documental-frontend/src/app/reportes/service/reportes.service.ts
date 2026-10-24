@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../../core/service/api.service';
 import {
   OperacionPorTipo, ArchivoPorTipo, ComparticionOtorgada, ComparticionRecibida,
-  HistorialActividadRespuesta, ArchivosPorFechasRespuesta
+  HistorialActividadRespuesta, ArchivosPorFechasRespuesta, ArchivoConOperaciones
 } from '../models/reporte.model';
 
 @Injectable({ providedIn: 'root' })
@@ -60,6 +60,13 @@ export class ReportesService extends ApiService {
     return this.http.get<ArchivosPorFechasRespuesta>(
       `${this.baseUrl}/reportes/archivos/por-fechas`,
       { params: query },
+    );
+  }
+
+  archivosConMasOperaciones(limite: number) {
+    return this.http.get<ArchivoConOperaciones[]>(
+      `${this.baseUrl}/reportes/archivos/mas-operaciones`,
+      { params: { limite: String(limite) } },
     );
   }
 }

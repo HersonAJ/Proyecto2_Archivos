@@ -78,3 +78,12 @@ export interface ArchivosPorFechasRespuesta {
   pagina: number;
   limite: number;
 }
+
+export interface ArchivoConOperaciones {
+  _id: string;
+  nombre: string;
+  tipo: string;
+  tamano: number;
+  propietario: string;
+  total: number;
+}

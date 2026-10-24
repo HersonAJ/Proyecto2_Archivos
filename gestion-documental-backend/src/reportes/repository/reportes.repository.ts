@@ -145,7 +145,7 @@ export class ReportesRepository {
                 archivo: { _id: Types.ObjectId; nombre: string; tipo: string; tamano: number; propietario: Types.ObjectId };
             }>([
                 { $match: { tipoRecurso: 'ARCHIVO' } },
-                { $group: { _id: '$recursos', total: { $sum: 1 } } },
+                { $group: { _id: '$recurso', total: { $sum: 1 } } },
                 { $sort: { total: -1 } },
                 { $limit: limite },
                 {

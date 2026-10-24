@@ -65,6 +65,13 @@ export class ReportesListComponent {
       ruta: '/reportes/archivos-por-fechas',
       roles: ['ADMIN'],
     },
+    {
+      titulo: 'Archivos con más operaciones',
+      descripcion: 'Archivos con mayor cantidad de operaciones registradas.',
+      icono: 'trending_up',
+      ruta: '/reportes/archivos-mas-operaciones',
+      roles: ['ADMIN'],
+    },
   ];
 
   protected readonly reportesVisibles = computed(() => {

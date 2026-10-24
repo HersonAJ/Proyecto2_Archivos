@@ -151,7 +151,7 @@ export class ReportesService {
     const filas = await this.reportesRepository.archivosConMasOperaciones(dto.limite);
     return filas.map((f) => ({
       _id: f._id.toString(),
-      nombre: f.archivo.tipo,
+      nombre: f.archivo.nombre,
       tipo: f.archivo.tipo,
       tamano: f.archivo.tamano,
       propietario: f.archivo.propietario.toString(),
