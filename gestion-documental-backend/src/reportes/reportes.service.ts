@@ -176,4 +176,14 @@ export class ReportesService {
       total: f.total,
     }));
   }
+
+  async usuariosConMasArchivos(dto: ReporteTopDto) {
+    const filas = await this.reportesRepository.usuariosConMasArchivos(dto.limite);
+    return filas.map((f) => ({
+      _id: f._id.toString(),
+      nombre: f.usuario.nombre,
+      correo: f.usuario.correo,
+      total: f.total,
+    }));
+  }
 }

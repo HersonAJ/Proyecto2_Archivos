@@ -71,4 +71,9 @@ export class ReportesController {
     carpetasConMasArchivos(@Query() dto: ReporteTopDto) {
         return this.reportesService.carpetasConMasArchivos(dto);
     }
+
+    @Get('usuarios/top-archivos')
+    usuariosConMasArchivos(@Query() dto: ReporteTopDto) {
+        return this.reportesService.usuariosConMasArchivos(dto);
+    }
 }
