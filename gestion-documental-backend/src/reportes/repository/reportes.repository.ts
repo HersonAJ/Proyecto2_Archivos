@@ -219,4 +219,32 @@ export class ReportesRepository {
                 total: resultado?.total[0]?.n ?? 0,
             }));
     }
+
+    carpetasConMasArchivos(limite: number) {
+        return this.archivos
+            .aggregate<{
+                _id: Types.ObjectId;
+                total: number;
+                carpeta: { _id: Types.ObjectId; nombre: string; propietario: Types.ObjectId };
+            }>([
+                { $match: { enPapelera: false, carpeta: { $ne: null } } },
+                { $group: { _id: '$carpeta', total: { $sum: 1 } } },
+                { $sort: { total: -1 } },
+                { $limit: limite },
+                {
+                    $lookup: {
+                        from: 'carpetas',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'carpeta',
+                        pipeline: [
+                            { $match: { enPapelera: false } },
+                            { $project: { _id: 1, nombre: 1, propietario: 1 } },
+                        ],
+                    },
+                },
+                { $unwind: '$carpeta' },
+            ])
+            .exec();
+    }
 }

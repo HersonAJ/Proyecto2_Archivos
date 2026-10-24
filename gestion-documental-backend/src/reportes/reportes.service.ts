@@ -166,4 +166,14 @@ export class ReportesService {
     );
     return { datos, total, pagina: dto.pagina, limite: dto.limite };
   }
+
+  async carpetasConMasArchivos(dto: ReporteTopDto) {
+    const filas = await this.reportesRepository.carpetasConMasArchivos(dto.limite);
+    return filas.map((f) => ({
+      _id: f._id.toString(),
+      nombre: f.carpeta.nombre,
+      propietario: f.carpeta.propietario.toString(),
+      total: f.total,
+    }));
+  }
 }

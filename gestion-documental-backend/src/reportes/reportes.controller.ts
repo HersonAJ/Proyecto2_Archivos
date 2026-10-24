@@ -66,4 +66,9 @@ export class ReportesController {
     archivosNuncaCompartidos(@Query() dto: ReporteFechasDto) {
         return this.reportesService.archivosNuncaCompartidos(dto);
     }
+
+    @Get('carpetas/mas-archivos')
+    carpetasConMasArchivos(@Query() dto: ReporteTopDto) {
+        return this.reportesService.carpetasConMasArchivos(dto);
+    }
 }
